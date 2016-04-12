@@ -65,16 +65,18 @@
     </Compile>
     <Compile Include="Framework\HttpCore\HttpCommunicator.cs" />
     <Compile Include="Framework\HttpCore\HttpRepeater.cs" />
+    <Compile Include="Framework\INIParser.cs" />
     <Compile Include="Framework\Log.cs" />
-    <Compile Include="Modules\StreamListener.cs" />
+    <Compile Include="Framework\StringSetsManager.cs" />
+    <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Modules\Reactor\Module.cs" />
-    <Compile Include="Modules\TimeTweet\Module.cs" />
+    <Compile Include="Modules\Scheduler\Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Framework\TimeSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

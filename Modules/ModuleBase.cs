@@ -23,4 +23,17 @@ namespace TrueRED.Modules
 
 		void End( TwitterUserStreamEnd end );
 	}
+
+
+	public interface TimeLimiter
+	{
+		bool Verification( );
+	}
+
+	public interface UseSetting
+	{
+		bool OpenSettings( );
+
+		bool SaveSettings( );
+	}
 }

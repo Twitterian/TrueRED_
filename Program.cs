@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,35 +14,55 @@ namespace TrueRED
 	{
 		static void Main( string[] args )
 		{
+			#region Initialize Program
+
 			Log.Init( );
+			StringSetsManager.LoadStringSets( "Stringsets" );
 
-			const string consumerKey = "kbxPh2hxMFm0sazIE81TKnk2a";
-			const string consumerSecret = "nPKGe0t5EoQB9ssMa9geOjkqwKEslMXfaKuX4Kvw3TAFGY47P3";
-			const string accessToken = "4071252374-PpVVKvHtE4s0Fb7MSeWIFinggnOPpeQ9RFnnEfi";
-			const string accessSecret = "x0j9sVc12cz0YGAeGwkmPF046uUH4JVgi0YTPKw9dDUK0";
+			var setting = new INIParser( Path.Combine( Directory.GetCurrentDirectory( ), "setting.ini" ) );
+			string consumerKey = setting.GetValue( "Authenticate", "ConsumerKey" );
+			string consumerSecret = setting.GetValue( "Authenticate", "CconsumerSecret" );
+			string accessToken = setting.GetValue( "Authenticate", "AccessToken" );
+			string accessSecret = setting.GetValue( "Authenticate", "AccessSecret" );
 
-			// Initialize user authenticate.
 			var twitter = new TwitterService(consumerKey, consumerSecret);
 			twitter.AuthenticateWith( accessToken, accessSecret );
 
-			// Initialize parameters
 			var id = twitter.VerifyCredentials(new VerifyCredentialsOptions
 			{
 				SkipStatus = true
 			}).Id;
 
-			Log.Debug( "User Id is", id.ToString() );
+			Log.Debug( "User ID is : ", id.ToString( ) );
 
-			// Initialize modules
-			var goodbye = new Modules.Reactor.Module( twitter, id );
-            var timetweet = new Modules.TimeTweet.Module( );
+			#endregion
+
+			#region Initialize Modules
+
+			var YoruHello = new Modules.Reactor.Module( twitter, id, "YoruHelloReactor", new TimeSet(20), new TimeSet(27));
+			var TimeTweet = new Modules.Scheduler.Module(twitter, id, "Settings/TimeTweet.ini" );
+
+			var iniModules = new List<UseSetting>();
+			iniModules.Add( TimeTweet );
 
 			var streamModules = new List<StreamListener>();
-			streamModules.Add( goodbye );
+			streamModules.Add( YoruHello );
+
+			#endregion
+
+			foreach ( var item in iniModules )
+			{
+				item.OpenSettings( );
+			}
 
 			CreateStream( twitter, streamModules );
 
 			new Display.AppConsole( ).ShowDialog( );
+			
+			foreach ( var item in iniModules )
+			{
+				item.SaveSettings( );
+			}
 		}
 
 		static void CreateStream( TwitterService service, List<StreamListener> modules )

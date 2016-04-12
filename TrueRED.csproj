@@ -67,7 +67,7 @@
     <Compile Include="Framework\HttpCore\HttpRepeater.cs" />
     <Compile Include="Framework\Log.cs" />
     <Compile Include="Modules\StreamListener.cs" />
-    <Compile Include="Modules\SayGoodBye\Module.cs" />
+    <Compile Include="Modules\Reactor\Module.cs" />
     <Compile Include="Modules\TimeTweet\Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

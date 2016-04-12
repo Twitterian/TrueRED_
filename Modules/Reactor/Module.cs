@@ -24,9 +24,6 @@ namespace TrueRED.Modules.Reactor
 
 		private Random _selector = new Random();
 		private IAuthenticatedUser user;
-		private string v;
-		private TimeSet timeSet1;
-		private TimeSet timeSet2;
 
 		public Module( IAuthenticatedUser user, string reactorStringset )
 		{

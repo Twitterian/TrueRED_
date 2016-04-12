@@ -35,17 +35,24 @@ namespace TrueRED
 
 			#region Initialize Modules
 
-			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(27));
-			var AsaHello = new Modules.Reactor.Module(user,  "AsaReactor", new TimeSet(5), new TimeSet(12));
+			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
+			var AsaHello = new Modules.Reactor.Module(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
 			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
 
 			var iniModules = new List<UseSetting>();
-			iniModules.Add( TimeTweet );
 
 			var streamModules = new List<StreamListener>();
 			streamModules.Add( YoruHello );
 
+			var timetasks = new List<TimeTask>();
+			timetasks.Add( TimeTweet );
+
 			#endregion
+
+			foreach ( var item in timetasks )
+			{
+				Task.Factory.StartNew( ( ) => item.Run( ) );
+			}
 
 			foreach ( var item in iniModules )
 			{

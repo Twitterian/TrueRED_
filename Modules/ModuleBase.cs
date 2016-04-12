@@ -54,4 +54,9 @@ namespace TrueRED.Modules
 
 		bool SaveSettings( );
 	}
+
+	public interface TimeTask
+	{
+		void Run( );
+	}
 }

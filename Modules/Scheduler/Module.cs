@@ -4,20 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrueRED.Framework;
-using TweetSharp;
+using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules.Scheduler
 {
 	class Module : UseSetting
 	{
-		private TwitterService twitter;
+		IAuthenticatedUser user;
 		private long Id;
 		private string iniPath;
 
-		public Module( TwitterService twitter, long userId, string iniPath )
+		public Module( IAuthenticatedUser user, string iniPath )
 		{
-			this.twitter = twitter;
-			this.Id = userId;
+			this.user = user;
 			this.iniPath = iniPath;
 		}
 

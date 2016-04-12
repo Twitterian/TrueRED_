@@ -6,31 +6,36 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TrueRED.Framework;
-using TweetSharp;
+using Tweetinvi;
+using Tweetinvi.Core.Events.EventArguments;
+using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules.Reactor
 {
 	class Module : StreamListener, TimeLimiter
 	{
-		private TwitterService twitter;
-		private long Id;
 		private TimeSet moduleWakeup;
 		private TimeSet moduleSleep;
+		private string reactorID;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();
 		List<string> reactor_output      = new List<string>();
 
 		private Random _selector = new Random();
+		private IAuthenticatedUser user;
+		private string v;
+		private TimeSet timeSet1;
+		private TimeSet timeSet2;
 
-		public Module( TwitterService twitter, long userId, string reactorStringset )
+		public Module( IAuthenticatedUser user, string reactorStringset )
 		{
-			this.twitter = twitter;
-			this.Id = userId;
+			this.user = user;
+			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
 		}
 
-		public Module( TwitterService twitter, long userId, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( twitter, userId, reactorStringset )
+		public Module( IAuthenticatedUser user, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, reactorStringset )
 		{
 			this.moduleWakeup = moduleWakeup;
 			this.moduleSleep = moduleSleep;
@@ -54,88 +59,6 @@ namespace TrueRED.Modules.Reactor
 			}
 		}
 
-		public void DeleteDirectMessage( TwitterUserStreamDeleteDirectMessage delete )
-		{
-
-		}
-
-		public void DeleteStatus( TwitterUserStreamDeleteStatus delete )
-		{
-
-		}
-
-		public void DirectMessage( TwitterDirectMessage dm )
-		{
-
-		}
-
-		public void End( TwitterUserStreamEnd end )
-		{
-
-		}
-
-		public void Event( TwitterUserStreamEvent @event )
-		{
-
-		}
-
-		public void Friends( TwitterUserStreamFriends friends )
-		{
-
-		}
-
-		public void Status( TwitterStatus status )
-		{
-			if ( !Verification( ) ) return;
-			if ( status.User.Id == Id ) return;
-			if ( status.RetweetedStatus != null ) return;
-
-			var cases = new List<int>();
-
-			for ( int i = 0; i < reactor_category.Count; i++ )
-			{
-				var category = reactor_category[i];
-				var input = reactor_input[i];
-
-				if ( input.StartsWith( "__" ) && input.EndsWith( "__" ) )
-				{
-					var inputset = StringSetsManager.GetStrings(input.Substring(2, input.Length-4));
-					for ( int j = 0; j < inputset.Length; j++ )
-					{
-						if ( IsMatch( category, inputset[j], status ) )
-						{
-							cases.Add( i );
-						}
-					}
-				}
-				else
-				{
-					if ( IsMatch( category, input, status ) )
-					{
-						cases.Add( i );
-					}
-				}
-			}
-			if ( cases.Count > 0 )
-			{
-				var i = _selector.Next(cases.Count);
-				string @out = string.Empty;
-				if ( reactor_output[cases[i]].StartsWith( "__" ) && reactor_output[cases[i]].EndsWith( "__" ) ) 
-					@out = StringSetsManager.GetRandomString( reactor_output[cases[i]].Substring( 2, reactor_output[cases[i]].Length - 4 ) );
-				else @out = reactor_output[cases[i]];
-				if ( string.IsNullOrEmpty( @out ) ) return;
-				var pString = ParseEscapeString(@out, status);
-				if ( pString.Flag )
-				{
-					twitter.BeginSendTweet( new SendTweetOptions
-					{
-						Status = pString.String,
-						InReplyToStatusId = pString.Id
-					} );
-				}
-			}
-		}
-
 		private class ParseEscapeResult
 		{
 			public bool Flag { get; set; }
@@ -143,20 +66,20 @@ namespace TrueRED.Modules.Reactor
 			public long Id { get; set; }
 		}
 
-		private ParseEscapeResult ParseEscapeString( string output, TwitterStatus status )
+		private ParseEscapeResult ParseEscapeString( string output, ITweet status )
 		{
 			var result = new ParseEscapeResult {Flag = true, String = string.Empty, Id = status.Id };
 
 
 			// :Tweet_Username:
 			// 이 부분을 상대방의 닉네임으로 치환합니다.
-			result.String = output.Replace( ":Tweet_Username:", status.User.Name );
+			result.String = output.Replace( ":Tweet_Username:", status.CreatedBy.Name );
 
 			// :NotMention:
 			// 이 트윗을 멘션으로 취급하지 않습니다.
 			if ( !result.String.Contains( ":NotMention:" ) )
 			{
-				result.String = string.Format( "@{0} {1}", status.User.ScreenName, result.String );
+				result.String = string.Format( "@{0} {1}", status.CreatedBy.ScreenName, result.String );
 			}
 			else
 			{
@@ -193,16 +116,16 @@ namespace TrueRED.Modules.Reactor
 
 		}
 
-		private bool IsMatch( string category, string input, TwitterStatus status )
+		private bool IsMatch( string category, string input, ITweet status )
 		{
-			if ( status.Text.Replace(" ", "").Replace("\n", "").Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
+			if ( status.Text.Replace( " ", "" ).Replace( "\n", "" ).Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
 			{
 				switch ( category )
 				{
 					case "All":
 						return true;
 					case "Mention":
-						if ( status.InReplyToUserId == Id )
+						if ( status.InReplyToUserId == user.Id )
 						{
 							return true;
 						}
@@ -222,6 +145,131 @@ namespace TrueRED.Modules.Reactor
 		{
 			if ( this.moduleWakeup == null || this.moduleSleep == null ) return true;
 			return TimeSet.Verification( TimeSet.GetCurrentTimeset( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
+		}
+
+		void StreamListener.TweetCreateByAnyone( object sender, TweetReceivedEventArgs args )
+		{
+			var tweet = args.Tweet;
+			if ( !Verification( ) ) return;
+			if ( tweet.CreatedBy.Id == user.Id ) return;
+			if ( tweet.Retweeted == true ) return;
+
+			var cases = new List<int>();
+
+			for ( int i = 0; i < reactor_category.Count; i++ )
+			{
+				var category = reactor_category[i];
+				var input = reactor_input[i];
+
+				if ( input.StartsWith( "__" ) && input.EndsWith( "__" ) )
+				{
+					var inputset = StringSetsManager.GetStrings(input.Substring(2, input.Length-4));
+					for ( int j = 0; j < inputset.Length; j++ )
+					{
+						if ( IsMatch( category, inputset[j], tweet ) )
+						{
+							cases.Add( i );
+						}
+					}
+				}
+				else
+				{
+					if ( IsMatch( category, input, tweet ) )
+					{
+						cases.Add( i );
+					}
+				}
+			}
+			if ( cases.Count > 0 )
+			{
+				var i = _selector.Next(cases.Count);
+				string @out = string.Empty;
+				if ( reactor_output[cases[i]].StartsWith( "__" ) && reactor_output[cases[i]].EndsWith( "__" ) )
+					@out = StringSetsManager.GetRandomString( reactor_output[cases[i]].Substring( 2, reactor_output[cases[i]].Length - 4 ) );
+				else @out = reactor_output[cases[i]];
+				if ( string.IsNullOrEmpty( @out ) ) return;
+				var pString = ParseEscapeString(@out, tweet);
+				if ( pString.Flag )
+				{
+					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
+					Log.Print( "Reactor_reactorStringset", string.Format( "Send Tweet[{0}]", result.Text ) );
+				}
+			}
+		}
+
+		void StreamListener.MessageSent( object sender, MessageEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.MessageReceived( object sender, MessageEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.TweetUnFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.ListCreated( object sender, ListEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.ListUpdated( object sender, ListEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.ListDestroyed( object sender, ListEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.BlockedUser( object sender, UserBlockedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.UnBlockedUser( object sender, UserBlockedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.FollowedByUser( object sender, UserFollowedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.UnFollowedUser( object sender, UserFollowedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.AuthenticatedUserProfileUpdated( object sender, AuthenticatedUserUpdatedEventArgs args )
+		{
+			
+		}
+
+		void StreamListener.FriendIdsReceived( object sender, GenericEventArgs<IEnumerable<long>> args )
+		{
+			
+		}
+
+		void StreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
+		{
+			
 		}
 	}
 }

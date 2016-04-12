@@ -3,25 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TweetSharp;
+using Tweetinvi.Core.Events.EventArguments;
 
 namespace TrueRED.Modules
 {
 	public interface StreamListener
 	{
-		void Friends( TwitterUserStreamFriends friends );
+		void TweetCreateByAnyone( object sender, TweetReceivedEventArgs args );
 
-		void Event( TwitterUserStreamEvent @event );
+		void MessageSent( object sender, MessageEventArgs args );
 
-		void Status( TwitterStatus status );
+		void MessageReceived( object sender, MessageEventArgs args );
 
-		void DirectMessage( TwitterDirectMessage dm );
+		void TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args );
 
-		void DeleteStatus( TwitterUserStreamDeleteStatus delete );
+		void TweetUnFavouritedByAnyone( object sender, TweetFavouritedEventArgs args );
 
-		void DeleteDirectMessage( TwitterUserStreamDeleteDirectMessage delete );
+		void ListCreated( object sender, ListEventArgs args );
 
-		void End( TwitterUserStreamEnd end );
+		void ListUpdated( object sender, ListEventArgs args );
+
+		void ListDestroyed( object sender, ListEventArgs args );
+
+		void BlockedUser( object sender, UserBlockedEventArgs args );
+
+		void UnBlockedUser( object sender, UserBlockedEventArgs args );
+
+		void FollowedUser( object sender, UserFollowedEventArgs args );
+
+		void FollowedByUser( object sender, UserFollowedEventArgs args );
+
+		void UnFollowedUser( object sender, UserFollowedEventArgs args );
+
+		void AuthenticatedUserProfileUpdated( object sender, AuthenticatedUserUpdatedEventArgs args );
+
+		void FriendIdsReceived( object sender, GenericEventArgs<IEnumerable<long>> args );
+
+		void AccessRevoked( object sender, AccessRevokedEventArgs args );
 	}
 
 

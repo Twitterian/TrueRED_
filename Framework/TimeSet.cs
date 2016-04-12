@@ -62,14 +62,14 @@ namespace TrueRED.Framework
 		public static bool operator <( TimeSet c1, TimeSet c2 )
 		{
 			if ( c1.Hour < c2.Hour ) return true;
-			else if ( c1.Minute < c2.Minute ) return true;
+			else if ( c1.Hour == c2.Hour && c1.Minute < c2.Minute ) return true;
 			else return false;
 		}
 
 		public static bool operator >( TimeSet c1, TimeSet c2 )
 		{
 			if ( c1.Hour > c2.Hour ) return true;
-			else if ( c1.Minute > c2.Minute ) return true;
+			else if ( c1.Hour == c2.Hour && c1.Minute > c2.Minute ) return true;
 			else return false;
 		}
 

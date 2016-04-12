@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hammock.Streaming;
 using TrueRED.Framework;
 using TrueRED.Modules;
-using TweetSharp;
+using Tweetinvi;
 
 namespace TrueRED
 {
@@ -25,22 +26,18 @@ namespace TrueRED
 			string accessToken = setting.GetValue( "Authenticate", "AccessToken" );
 			string accessSecret = setting.GetValue( "Authenticate", "AccessSecret" );
 
-			var twitter = new TwitterService(consumerKey, consumerSecret);
-			twitter.AuthenticateWith( accessToken, accessSecret );
+			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
 
-			var id = twitter.VerifyCredentials(new VerifyCredentialsOptions
-			{
-				SkipStatus = true
-			}).Id;
-
-			Log.Debug( "User ID is : ", id.ToString( ) );
+			var user = User.GetAuthenticatedUser( );
+			Log.Debug( "UserCredentials :", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
 
 			#endregion
 
 			#region Initialize Modules
 
-			var YoruHello = new Modules.Reactor.Module( twitter, id, "YoruHelloReactor", new TimeSet(20), new TimeSet(27));
-			var TimeTweet = new Modules.Scheduler.Module(twitter, id, "Settings/TimeTweet.ini" );
+			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(27));
+			var AsaHello = new Modules.Reactor.Module(user,  "AsaReactor", new TimeSet(5), new TimeSet(12));
+			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
 
 			var iniModules = new List<UseSetting>();
 			iniModules.Add( TimeTweet );
@@ -55,88 +52,42 @@ namespace TrueRED
 				item.OpenSettings( );
 			}
 
-			CreateStream( twitter, streamModules );
+			CreateStream( streamModules );
 
 			new Display.AppConsole( ).ShowDialog( );
-			
+
 			foreach ( var item in iniModules )
 			{
 				item.SaveSettings( );
 			}
 		}
 
-		static void CreateStream( TwitterService service, List<StreamListener> modules )
+		static void CreateStream( List<StreamListener> modules )
 		{
-			service.StreamUser( ( streamEvent, response ) =>
+			if ( modules.Count == 0 ) return;
+
+			var userStream = Tweetinvi.Stream.CreateUserStream();
+			foreach ( var module in modules )
 			{
-				if ( streamEvent is TwitterUserStreamEnd )
-				{
-					var end = ( TwitterUserStreamEnd ) streamEvent;
-					Log.Error( "TwitterUserStreamEnd", end.RawSource );
+				userStream.TweetCreatedByAnyone += module.TweetCreateByAnyone;
+				userStream.MessageSent += module.MessageSent;
+				userStream.MessageReceived += module.MessageReceived;
+				userStream.TweetFavouritedByAnyone += module.TweetFavouritedByAnyone;
+				userStream.TweetUnFavouritedByAnyone += module.TweetUnFavouritedByAnyone;
+				userStream.ListCreated += module.ListCreated;
+				userStream.ListUpdated += module.ListUpdated;
+				userStream.ListDestroyed += module.ListDestroyed;
+				userStream.BlockedUser += module.BlockedUser;
+				userStream.UnBlockedUser += module.UnBlockedUser;
+				userStream.FollowedUser += module.FollowedUser;
+				userStream.FollowedByUser += module.FollowedByUser;
+				userStream.UnFollowedUser += module.UnFollowedUser;
+				userStream.AuthenticatedUserProfileUpdated += module.AuthenticatedUserProfileUpdated;
+				userStream.FriendIdsReceived += module.FriendIdsReceived;
+				userStream.AccessRevoked += module.AccessRevoked;
+			}
+			userStream.StartStream( );
 
-					foreach ( var item in modules )
-					{
-						item.End( end );
-					}
-				}
-
-				if ( response.StatusCode == 0 )
-				{
-					if ( streamEvent is TwitterUserStreamFriends )
-					{
-						var friends = ( TwitterUserStreamFriends ) streamEvent;
-						foreach ( var item in modules )
-						{
-							item.Friends( friends );
-						}
-					}
-
-					if ( streamEvent is TwitterUserStreamEvent )
-					{
-						var @event = (TwitterUserStreamEvent)streamEvent;
-						foreach ( var item in modules )
-						{
-							item.Event( @event );
-						}
-					}
-
-					if ( streamEvent is TwitterUserStreamStatus )
-					{
-						var status = ((TwitterUserStreamStatus)streamEvent).Status;
-						foreach ( var item in modules )
-						{
-							item.Status( status );
-						}
-					}
-
-					if ( streamEvent is TwitterUserStreamDirectMessage )
-					{
-						var dm = ((TwitterUserStreamDirectMessage)streamEvent).DirectMessage;
-						foreach ( var item in modules )
-						{
-							item.DirectMessage( dm );
-						}
-					}
-
-					if ( streamEvent is TwitterUserStreamDeleteStatus )
-					{
-						var deleted = (TwitterUserStreamDeleteStatus)streamEvent;
-						foreach ( var item in modules )
-						{
-							item.DeleteStatus( deleted );
-						}
-					}
-
-					if ( streamEvent is TwitterUserStreamDeleteDirectMessage )
-					{
-						var deleted = (TwitterUserStreamDeleteDirectMessage)streamEvent;
-						foreach ( var item in modules )
-						{
-							item.DeleteDirectMessage( deleted );
-						}
-					}
-				}
-			} );
 		}
 	}
 }

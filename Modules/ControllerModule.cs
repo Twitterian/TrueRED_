@@ -83,11 +83,12 @@ namespace TrueRED.Modules
 		{
 			var tweet = args.Tweet;
 
+			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.CreatedBy.Id != owner.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
 			if ( tweet.InReplyToUserId != user.Id ) return;
 
-				if ( tweet.Text.Contains( "Deactivate" ) )
+			if ( tweet.Text.Contains( "Deactivate" ) )
 			{
 				Log.Debug( "Controller", string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
 
@@ -119,7 +120,7 @@ namespace TrueRED.Modules
 					}
 				}
 			}
-			else if(tweet.Text.Contains("GetModuleState"))
+			else if ( tweet.Text.Contains( "GetModuleState" ) )
 			{
 				GetModuleState( tweet );
 			}
@@ -132,9 +133,9 @@ namespace TrueRED.Modules
 			string result = string.Empty;
 			for ( int i = 0; i < modules.Count; i++ )
 			{
-				result += string.Format( "{0} : {1}\n", modules.Keys.ToArray()[i], modules.Values.ToArray( )[i].IsRunning.ToString() );
+				result += string.Format( "{0} : {1}\n", modules.Keys.ToArray( )[i], modules.Values.ToArray( )[i].IsRunning.ToString( ) );
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}", owner.ScreenName, result), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}", owner.ScreenName, result ), tweet.Id );
 		}
 
 		private void GoNyang( ITweet tweet )

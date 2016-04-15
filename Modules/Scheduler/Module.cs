@@ -10,18 +10,17 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules.Scheduler
 {
-	class Module : TimeTask
+	class Module : Modules.Module, ITimeTask
 	{
-		public bool isActive { get; set; }
 		IAuthenticatedUser user;
 		private string stringsetPath;
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 
 		public Module( IAuthenticatedUser user, string stringsetPath )
 		{
+			this.IsRunning = true;
 			this.user = user;
 			this.stringsetPath = stringsetPath;
-			isActive = true;
 			LoadStringsets( stringsetPath );
 		}
 
@@ -41,17 +40,21 @@ namespace TrueRED.Modules.Scheduler
 			}
 		}
 
-		void TimeTask.Run( )
+		void ITimeTask.Run( )
 		{
-			while ( isActive )
+			while ( true )
 			{
-				foreach ( var item in pair )
+				if ( IsRunning )
 				{
-					if ( DateTime.Now.Hour == item.Item1.Hour &&
-					DateTime.Now.Minute == item.Item1.Minute &&
-					DateTime.Now.Second == 0 )
+					foreach ( var item in pair )
 					{
-						Tweet.PublishTweet( item.Item2 );
+						if ( DateTime.Now.Hour == item.Item1.Hour &&
+						DateTime.Now.Minute == item.Item1.Minute &&
+						DateTime.Now.Second == 0 )
+						{
+							var tweet= Tweet.PublishTweet( item.Item2 );
+							Log.Print( "Scheduler tweet", string.Format( "[{0} : {1}]", tweet.Text, tweet.CreatedAt.ToString( ) ) );
+						}
 					}
 				}
 				Thread.Sleep( 1000 );

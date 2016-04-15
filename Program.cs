@@ -25,31 +25,49 @@ namespace TrueRED
 			string consumerSecret = setting.GetValue( "Authenticate", "CconsumerSecret" );
 			string accessToken = setting.GetValue( "Authenticate", "AccessToken" );
 			string accessSecret = setting.GetValue( "Authenticate", "AccessSecret" );
-
 			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
-
 			var user = User.GetAuthenticatedUser( );
 			Log.Debug( "UserCredentials :", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
 
+			long ownerID = 0;
+			try
+			{
+				ownerID = long.Parse(setting.GetValue("AppInfo", "OwnerID"));
+			}
+			catch ( FormatException e )
+			{
+				ownerID = 0;
+            }
+			var owner = User.GetUserFromId( ownerID );
 			#endregion
 
 			#region Initialize Modules
 
+			var modules = new Dictionary<string, Modules.Module>();
+			var iniModules = new List<IUseSetting>();
+			var streamModules = new List<IStreamListener>();
+			var timetasks = new List<ITimeTask>();
+
 			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
-			var AsaHello = new Modules.Reactor.Module(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
-			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
-			var AutoFollow = new Modules.FollowReflection.Module(user);
-
-			var iniModules = new List<UseSetting>();
-
-			var streamModules = new List<StreamListener>();
+			modules.Add( "YoruHello", YoruHello );
 			streamModules.Add( YoruHello );
-			streamModules.Add( AsaHello );
-			streamModules.Add( AutoFollow );
 
-			var timetasks = new List<TimeTask>();
+			var AsaHello = new Modules.Reactor.Module(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
+			modules.Add( "AsaHello", AsaHello );
+			streamModules.Add( AsaHello );
+
+			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
+			modules.Add( "TimeTweet", TimeTweet );
 			timetasks.Add( TimeTweet );
 
+			var AutoFollow = new Modules.FollowReflection.Module(user);
+			modules.Add( "AutoFollow", AutoFollow );
+			streamModules.Add( AutoFollow );
+
+			var Switcher = new Modules.Switch.Module(user, owner, modules);
+			modules.Add( "Switcher", Switcher );
+			streamModules.Add( Switcher );
+			
 			#endregion
 
 			foreach ( var item in timetasks )
@@ -61,7 +79,7 @@ namespace TrueRED
 			{
 				item.OpenSettings( );
 			}
-
+			
 			CreateStream( streamModules );
 
 			new Display.AppConsole( ).ShowDialog( );
@@ -72,7 +90,7 @@ namespace TrueRED
 			}
 		}
 
-		static void CreateStream( List<StreamListener> modules )
+		static void CreateStream( List<IStreamListener> modules )
 		{
 			if ( modules.Count == 0 ) return;
 

@@ -7,7 +7,10 @@ using Tweetinvi.Core.Events.EventArguments;
 
 namespace TrueRED.Modules
 {
-	public interface StreamListener
+	/// <summary>
+	/// IStreamListener 인터페이스를 통해 스트림 이벤트 동작을 정의할 수 있습니다.
+	/// </summary>
+	public interface IStreamListener
 	{
 		void TweetCreateByAnyone( object sender, TweetReceivedEventArgs args );
 
@@ -41,22 +44,35 @@ namespace TrueRED.Modules
 
 		void AccessRevoked( object sender, AccessRevokedEventArgs args );
 	}
-
-
-	public interface TimeLimiter
+	
+	/// <summary>
+	/// ITimeLimiter 인터페이스를 통해 스크립트가 작동할 시간대를 설정할 수 있습니다.
+	/// </summary>
+	public interface ITimeLimiter
 	{
 		bool Verification( );
 	}
 
-	public interface UseSetting
+	/// <summary>
+	/// IUserSetting 인터페이스를 통해 별도 ini파일의 설정을 사용할 수 있습니다.
+	/// </summary>
+	public interface IUseSetting
 	{
 		bool OpenSettings( );
 
 		bool SaveSettings( );
 	}
 
-	public interface TimeTask
+	/// <summary>
+	/// ITimeTask 인터페이스를 통해 주기적으로 실행되는 작업을 정의할 수 있습니다.
+	/// </summary>
+	public interface ITimeTask
 	{
 		void Run( );
+	}
+
+	public class Module
+	{
+		public bool IsRunning { get; set; }
 	}
 }

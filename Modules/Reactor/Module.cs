@@ -12,21 +12,22 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules.Reactor
 {
-	class Module : StreamListener, TimeLimiter
+	class Module : Modules.Module, IStreamListener, ITimeLimiter
 	{
-		private TimeSet moduleWakeup = null;
-		private TimeSet moduleSleep = null;
-		private string reactorID;
+		TimeSet moduleWakeup = null;
+		TimeSet moduleSleep = null;
+		string reactorID;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();
 		List<string> reactor_output      = new List<string>();
 
-		private Random _selector = new Random();
-		private IAuthenticatedUser user;
+		Random _selector = new Random();
+		IAuthenticatedUser user;
 
 		public Module( IAuthenticatedUser user, string reactorStringset )
 		{
+			this.IsRunning = true;
 			this.user = user;
 			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
@@ -121,16 +122,19 @@ namespace TrueRED.Modules.Reactor
 				switch ( category )
 				{
 					case "All":
+						Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 						return true;
 					case "Mention":
 						if ( status.InReplyToUserId == user.Id )
 						{
+							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							return true;
 						}
 						break;
 					case "Public":
 						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null )
 						{
+							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							return true;
 						}
 						break;
@@ -146,8 +150,9 @@ namespace TrueRED.Modules.Reactor
 			return TimeSet.Verification( TimeSet.GetCurrentTimeset( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
 		}
 
-		void StreamListener.TweetCreateByAnyone( object sender, TweetReceivedEventArgs args )
+		void IStreamListener.TweetCreateByAnyone( object sender, TweetReceivedEventArgs args )
 		{
+			if ( !IsRunning ) return;
 			var tweet = args.Tweet;
 			if ( !Verification( ) ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
@@ -191,84 +196,84 @@ namespace TrueRED.Modules.Reactor
 				if ( pString.Flag )
 				{
 					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
-					Log.Print( "Reactor_reactorStringset", string.Format( "Send Tweet[{0}]", result.Text ) );
+					Log.Print( "Reactor", string.Format( "Send tweet [{0}]", result.Text ) );
 				}
 			}
 		}
 
-		void StreamListener.MessageSent( object sender, MessageEventArgs args )
+		void IStreamListener.MessageSent( object sender, MessageEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.MessageReceived( object sender, MessageEventArgs args )
+		void IStreamListener.MessageReceived( object sender, MessageEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
+		void IStreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.TweetUnFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
+		void IStreamListener.TweetUnFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.ListCreated( object sender, ListEventArgs args )
+		void IStreamListener.ListCreated( object sender, ListEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.ListUpdated( object sender, ListEventArgs args )
+		void IStreamListener.ListUpdated( object sender, ListEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.ListDestroyed( object sender, ListEventArgs args )
+		void IStreamListener.ListDestroyed( object sender, ListEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.BlockedUser( object sender, UserBlockedEventArgs args )
+		void IStreamListener.BlockedUser( object sender, UserBlockedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.UnBlockedUser( object sender, UserBlockedEventArgs args )
+		void IStreamListener.UnBlockedUser( object sender, UserBlockedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
+		void IStreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.FollowedByUser( object sender, UserFollowedEventArgs args )
+		void IStreamListener.FollowedByUser( object sender, UserFollowedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.UnFollowedUser( object sender, UserFollowedEventArgs args )
+		void IStreamListener.UnFollowedUser( object sender, UserFollowedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.AuthenticatedUserProfileUpdated( object sender, AuthenticatedUserUpdatedEventArgs args )
+		void IStreamListener.AuthenticatedUserProfileUpdated( object sender, AuthenticatedUserUpdatedEventArgs args )
 		{
-			
+
 		}
 
-		void StreamListener.FriendIdsReceived( object sender, GenericEventArgs<IEnumerable<long>> args )
+		void IStreamListener.FriendIdsReceived( object sender, GenericEventArgs<IEnumerable<long>> args )
 		{
-			
+
 		}
 
-		void StreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
+		void IStreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
 		{
-			
+
 		}
 	}
 }

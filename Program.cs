@@ -38,11 +38,14 @@ namespace TrueRED
 			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
 			var AsaHello = new Modules.Reactor.Module(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
 			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
+			var AutoFollow = new Modules.FollowReflection.Module(user);
 
 			var iniModules = new List<UseSetting>();
 
 			var streamModules = new List<StreamListener>();
 			streamModules.Add( YoruHello );
+			streamModules.Add( AsaHello );
+			streamModules.Add( AutoFollow );
 
 			var timetasks = new List<TimeTask>();
 			timetasks.Add( TimeTweet );

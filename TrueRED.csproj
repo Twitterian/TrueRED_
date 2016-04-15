@@ -96,6 +96,7 @@
     <Compile Include="Framework\INIParser.cs" />
     <Compile Include="Framework\Log.cs" />
     <Compile Include="Framework\StringSetsManager.cs" />
+    <Compile Include="Modules\FollowReflection\Module.cs" />
     <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Modules\Reactor\Module.cs" />
     <Compile Include="Modules\Scheduler\Module.cs" />

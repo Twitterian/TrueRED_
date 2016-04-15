@@ -8,15 +8,15 @@ using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
 
-namespace TrueRED.Modules.Switch
+namespace TrueRED.Modules
 {
-	class Module : Modules.Module, IStreamListener
+	class ControllerModule : Modules.Module, IStreamListener
 	{
 		IAuthenticatedUser user;
 		IUser owner;
 		Dictionary<string, Modules.Module> modules;
 
-		public Module( IAuthenticatedUser user, IUser owner, Dictionary<string, Modules.Module> modules )
+		public ControllerModule( IAuthenticatedUser user, IUser owner, Dictionary<string, Modules.Module> modules )
 		{
 			this.IsRunning = true;
 			this.user = user;

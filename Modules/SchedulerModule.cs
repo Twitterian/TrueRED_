@@ -8,15 +8,15 @@ using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Interfaces;
 
-namespace TrueRED.Modules.Scheduler
+namespace TrueRED.Modules
 {
-	class Module : Modules.Module, ITimeTask
+	class SchedulerModule : Modules.Module, ITimeTask
 	{
 		IAuthenticatedUser user;
 		private string stringsetPath;
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 
-		public Module( IAuthenticatedUser user, string stringsetPath )
+		public SchedulerModule( IAuthenticatedUser user, string stringsetPath )
 		{
 			this.IsRunning = true;
 			this.user = user;

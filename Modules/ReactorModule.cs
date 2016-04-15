@@ -10,9 +10,9 @@ using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
 
-namespace TrueRED.Modules.Reactor
+namespace TrueRED.Modules
 {
-	class Module : Modules.Module, IStreamListener, ITimeLimiter
+	class ReactorModule : Modules.Module, IStreamListener, ITimeLimiter
 	{
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
@@ -25,7 +25,7 @@ namespace TrueRED.Modules.Reactor
 		Random _selector = new Random();
 		IAuthenticatedUser user;
 
-		public Module( IAuthenticatedUser user, string reactorStringset )
+		public ReactorModule( IAuthenticatedUser user, string reactorStringset )
 		{
 			this.IsRunning = true;
 			this.user = user;
@@ -34,7 +34,7 @@ namespace TrueRED.Modules.Reactor
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 		}
 
-		public Module( IAuthenticatedUser user, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, reactorStringset )
+		public ReactorModule( IAuthenticatedUser user, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, reactorStringset )
 		{
 			this.moduleWakeup = moduleWakeup;
 			this.moduleSleep = moduleSleep;

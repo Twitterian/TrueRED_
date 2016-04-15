@@ -48,23 +48,23 @@ namespace TrueRED
 			var streamModules = new List<IStreamListener>();
 			var timetasks = new List<ITimeTask>();
 
-			var YoruHello = new Modules.Reactor.Module(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
+			var YoruHello = new Modules.ReactorModule(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
 			modules.Add( "YoruHello", YoruHello );
 			streamModules.Add( YoruHello );
 
-			var AsaHello = new Modules.Reactor.Module(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
+			var AsaHello = new Modules.ReactorModule(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
 			modules.Add( "AsaHello", AsaHello );
 			streamModules.Add( AsaHello );
 
-			var TimeTweet = new Modules.Scheduler.Module(user, "TimeTweet" );
+			var TimeTweet = new Modules.SchedulerModule(user, "TimeTweet" );
 			modules.Add( "TimeTweet", TimeTweet );
 			timetasks.Add( TimeTweet );
 
-			var AutoFollow = new Modules.FollowReflection.Module(user);
+			var AutoFollow = new Modules.ReflectorModule(user);
 			modules.Add( "AutoFollow", AutoFollow );
 			streamModules.Add( AutoFollow );
 
-			var Switcher = new Modules.Switch.Module(user, owner, modules);
+			var Switcher = new Modules.ControllerModule(user, owner, modules);
 			modules.Add( "Switcher", Switcher );
 			streamModules.Add( Switcher );
 			

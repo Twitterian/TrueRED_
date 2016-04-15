@@ -14,8 +14,8 @@ namespace TrueRED.Modules.Reactor
 {
 	class Module : StreamListener, TimeLimiter
 	{
-		private TimeSet moduleWakeup;
-		private TimeSet moduleSleep;
+		private TimeSet moduleWakeup = null;
+		private TimeSet moduleSleep = null;
 		private string reactorID;
 
 		List<string> reactor_category    = new List<string>();
@@ -30,6 +30,7 @@ namespace TrueRED.Modules.Reactor
 			this.user = user;
 			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
+			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 		}
 
 		public Module( IAuthenticatedUser user, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, reactorStringset )
@@ -140,7 +141,8 @@ namespace TrueRED.Modules.Reactor
 
 		public bool Verification( )
 		{
-			if ( this.moduleWakeup == null || this.moduleSleep == null ) return true;
+			if ( moduleWakeup == null && moduleSleep == null ) return true;
+			if ( moduleWakeup.Hour == -1 && moduleSleep.Hour == -1 ) return true;
 			return TimeSet.Verification( TimeSet.GetCurrentTimeset( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
 		}
 
@@ -149,7 +151,7 @@ namespace TrueRED.Modules.Reactor
 			var tweet = args.Tweet;
 			if ( !Verification( ) ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
-			if ( tweet.Retweeted == true ) return;
+			if ( tweet.IsRetweet == true ) return;
 
 			var cases = new List<int>();
 

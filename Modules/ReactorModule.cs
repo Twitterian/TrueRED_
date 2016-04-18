@@ -18,7 +18,7 @@ namespace TrueRED.Modules
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
 		string reactorID;
-		long ownerId;
+		IUser owner == null;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();
@@ -31,17 +31,17 @@ namespace TrueRED.Modules
 		int ExpireTime = 1; // 권장 : 10
 		int ExpireDelay= 1; // 권장 : 10
 
-		public ReactorModule( IAuthenticatedUser user, string ownerId, string reactorStringset )
+		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset )
 		{
 			this.IsRunning = true;
 			this.user = user;
 			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
-			ownerId = ownerId;
+			this.owner = owner;
 		}
 
-		public ReactorModule( IAuthenticatedUser user, string ownerId, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, ownerId, reactorStringset )
+		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, owner, reactorStringset )
 		{
 			this.moduleWakeup = moduleWakeup;
 			this.moduleSleep = moduleSleep;
@@ -182,7 +182,7 @@ namespace TrueRED.Modules
 			if ( tweet.IsRetweet == true ) return;
 
 			// Debug commands.
-			if ( tweet.CreatedBy.Id == ownerId )
+			if ( tweet.CreatedBy.Id == owner )
 			{
 				if ( tweet.Text.Contains( "ExpireUsers" ) )
 				{

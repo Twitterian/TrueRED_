@@ -71,8 +71,8 @@ namespace TrueRED
 			#region Initialize Modules
 
 			var modules = new Dictionary<string, Module>();
-			modules.Add( "YoruHello", new ReactorModule( user, "YoruHelloReactor", new TimeSet( 20 ), new TimeSet( 29 ) ) );
-			modules.Add( "AsaHello", new ReactorModule( user, "AsaHelloReactor", new TimeSet( 5 ), new TimeSet( 12 ) ) );
+			modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor", new TimeSet( 20 ), new TimeSet( 29 ) ) );
+			modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor", new TimeSet( 5 ), new TimeSet( 12 ) ) );
 			modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
 			modules.Add( "Reflector", new ReflectorModule( user ) );
 			modules.Add( "Controller", new ControllerModule( user, owner, modules ) );

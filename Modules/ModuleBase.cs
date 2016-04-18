@@ -44,7 +44,7 @@ namespace TrueRED.Modules
 
 		void AccessRevoked( object sender, AccessRevokedEventArgs args );
 	}
-	
+
 	/// <summary>
 	/// ITimeLimiter 인터페이스를 통해 스크립트가 작동할 시간대를 설정할 수 있습니다.
 	/// </summary>
@@ -73,6 +73,30 @@ namespace TrueRED.Modules
 
 	public class Module
 	{
-		public bool IsRunning { get; set; }
+		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
+		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener
+		{
+			get
+			{
+				return _ModuleStateChangeListener;
+			}
+		}
+
+		private bool _IsRunning;
+		public bool IsRunning
+		{
+			get { return _IsRunning; }
+			set
+			{
+				_IsRunning = value;
+				if ( ModuleStateChangeListener.Count > 0 )
+				{
+					foreach ( var item in ModuleStateChangeListener )
+					{
+						item.Value( item.Key, _IsRunning );
+					}
+				}
+			}
+		}
 	}
 }

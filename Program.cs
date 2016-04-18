@@ -98,7 +98,7 @@ namespace TrueRED
 
 			CreateStream( modules.Values.OfType<IStreamListener>( ) );
 
-			new Display.AppConsole( ).ShowDialog( );
+			new Display.AppConsole( modules ).ShowDialog( );
 
 			foreach ( var item in modules )
 			{

@@ -46,7 +46,7 @@ namespace TrueRED
 			StringSetsManager.LoadStringSets( "Stringsets" );
 
 			var setting = new INIParser( "Globals.ini" );
-			var AuthData = "Authenticate2";
+			var AuthData = "Authenticate";
 			string consumerKey = setting.GetValue( AuthData, "ConsumerKey" );
 			string consumerSecret = setting.GetValue( AuthData, "CconsumerSecret" );
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );

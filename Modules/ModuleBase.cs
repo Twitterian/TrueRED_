@@ -58,9 +58,9 @@ namespace TrueRED.Modules
 	/// </summary>
 	public interface IUseSetting
 	{
-		bool OpenSettings( );
+		void OpenSettings( string path );
 
-		bool SaveSettings( );
+		void SaveSettings( string path );
 	}
 
 	/// <summary>

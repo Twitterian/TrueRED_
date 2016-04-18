@@ -40,7 +40,6 @@ namespace TrueRED
 
 		static void Body( )
 		{
-
 			#region Initialize Program
 
 			Log.Init( );
@@ -68,6 +67,8 @@ namespace TrueRED
 			var owner = User.GetUserFromId( ownerID );
 			#endregion
 
+			InitDirectories( );
+
 			#region Initialize Modules
 
 			var modules = new Dictionary<string, Module>();
@@ -80,7 +81,6 @@ namespace TrueRED
 
 			#endregion
 
-
 			foreach ( var item in modules )
 			{
 				if ( item.Value is ITimeTask )
@@ -92,7 +92,7 @@ namespace TrueRED
 				if ( item.Value is IUseSetting )
 				{
 					var module = (IUseSetting)item.Value;
-					module.OpenSettings( );
+					module.OpenSettings( Path.Combine( Directory.GetCurrentDirectory( ) + "/Settings", item.Key + ".ini" ) );
 				}
 			}
 
@@ -100,9 +100,28 @@ namespace TrueRED
 
 			new Display.AppConsole( ).ShowDialog( );
 
-			foreach ( IUseSetting item in modules.Values.OfType<IUseSetting>( ) )
+			foreach ( var item in modules )
 			{
-				item.SaveSettings( );
+				if ( item.Value is IUseSetting )
+				{
+					var module = (IUseSetting)item.Value;
+					module.SaveSettings( Path.Combine( Directory.GetCurrentDirectory( ) + "/Settings", item.Key + ".ini" ) );
+				}
+			}
+		}
+
+		private static void InitDirectories( )
+		{
+			var settings = Path.Combine( Directory.GetCurrentDirectory( ), "Settings" ) ;
+			if ( !Directory.Exists( settings ) )
+			{
+				Directory.CreateDirectory( settings );
+			}
+
+			var stringsets = Path.Combine( Directory.GetCurrentDirectory( ), "StringSets" ) ;
+			if ( !Directory.Exists( stringsets ) )
+			{
+				Directory.CreateDirectory( stringsets );
 			}
 		}
 
@@ -130,7 +149,7 @@ namespace TrueRED
 				userStream.FriendIdsReceived += module.FriendIdsReceived;
 				userStream.AccessRevoked += module.AccessRevoked;
 			}
-			userStream.StartStream( );
+			userStream.StartStreamAsync( );
 
 		}
 	}

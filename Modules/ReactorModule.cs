@@ -28,12 +28,11 @@ namespace TrueRED.Modules
 		IAuthenticatedUser user;
 
 		Dictionary<long, TimeSet> ExpireUsers = new Dictionary<long, TimeSet>();
-		int ExpireTime = 1; // 권장 : 10
-		int ExpireDelay= 1; // 권장 : 10
+		int ExpireTime; // 권장 : 10
+		int ExpireDelay; // 권장 : 10
 
 		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset )
 		{
-			this.IsRunning = true;
 			this.user = user;
 			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
@@ -314,14 +313,48 @@ namespace TrueRED.Modules
 
 		}
 
-		bool IUseSetting.OpenSettings( )
+		void IUseSetting.OpenSettings( string path )
 		{
-			return true;
+			var setting = new INIParser(path);
+			var running = setting.GetValue("Module", "IsRunning");
+			var expiretime = setting.GetValue("Expire", "Time");
+			var expiredelay = setting.GetValue("Expire", "Delay");
+
+			if ( !string.IsNullOrEmpty( running ) )
+			{
+				IsRunning = bool.Parse( running );
+			}
+			else
+			{
+				IsRunning = true;
+			}
+
+			if ( !string.IsNullOrEmpty( expiretime ) )
+			{
+				ExpireTime = int.Parse( expiretime );
+			}
+			else
+			{
+				ExpireTime = 10;
+			}
+
+			if ( !string.IsNullOrEmpty( expiredelay ) )
+			{
+				ExpireDelay = int.Parse( expiredelay );
+			}
+			else
+			{
+				ExpireDelay = 5;
+			}
+
 		}
 
-		bool IUseSetting.SaveSettings( )
+		void IUseSetting.SaveSettings( string path )
 		{
-			return true;
+			var setting = new INIParser(path);
+			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
+			setting.SetValue( "Expire", "Time", ExpireTime.ToString( ) );
+			setting.SetValue( "Expire", "Delay", ExpireDelay.ToString( ) );
 		}
 
 		void ITimeTask.Run( )

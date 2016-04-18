@@ -60,7 +60,7 @@ namespace TrueRED.Display
 			string result = string.Empty;
 			foreach ( var item in Modules )
 			{
-				result += string.Format( "\n\t{0} : {1}", item.Name, item.Module.IsRunning.ToString( ) );
+				result += string.Format( "\n    {0} : {1}", item.Name, item.Module.IsRunning.ToString( ) );
 			}
 			Log.Debug( "AppConsole", string.Format( "{0}", result ) );
 		}

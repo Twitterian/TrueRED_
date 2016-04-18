@@ -24,10 +24,10 @@ namespace TrueRED.Framework
 				string @out = string.Format("Read INI - [{0}]", iniPath);
 				foreach ( var section in data.Sections )
 				{
-					@out += string.Format( "\n[{0}]", section.SectionName );
+					@out += string.Format( "\n    [{0}]", section.SectionName );
 					foreach ( var key in section.Keys )
 					{
-						@out += string.Format( "\n\t{0} = {1}", key.KeyName, data[section.SectionName][key.KeyName]);
+						@out += string.Format( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName]);
 					}
 				}
 				Log.Debug( "INIParser", @out );

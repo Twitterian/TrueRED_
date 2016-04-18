@@ -146,7 +146,7 @@ namespace TrueRED.Modules
 			{
 				module.IsRunning = true;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈이 활성화되었어요", owner.ScreenName, modules.Count ), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 활성화 했어", owner.ScreenName, modules.Count ), tweet.Id );
 			Log.Debug( "Controller", "All Module Activated" );
 		}
 
@@ -157,7 +157,7 @@ namespace TrueRED.Modules
 			{
 				module.IsRunning = false;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈이 비활성화되었어요", owner.ScreenName, modules.Count ), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 비활성화 했어", owner.ScreenName, modules.Count ), tweet.Id );
 			Log.Debug( "Controller", "All Module Deactivated" );
 		}
 
@@ -167,12 +167,12 @@ namespace TrueRED.Modules
 			if ( modules.ContainsKey( module ) )
 			{
 				modules[module].IsRunning = true;
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈이 활성화되었어요", owner.ScreenName, module ), tweet.Id );
+				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 활성화 했어", owner.ScreenName, module ), tweet.Id );
 				Log.Debug( "Controller", module + " Module Activated" );
 			}
 			else
 			{
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어요", owner.ScreenName, module ), tweet.Id );
+				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어", owner.ScreenName, module ), tweet.Id );
 				Log.Debug( "Controller", module + " Not Found" );
 			}
 		}
@@ -183,12 +183,12 @@ namespace TrueRED.Modules
 			if ( modules.ContainsKey( module ) )
 			{
 				modules[module].IsRunning = false;
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈이 비활성화되었어요", owner.ScreenName, module ), tweet.Id );
+				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 비활성화 했어", owner.ScreenName, module ), tweet.Id );
 				Log.Debug( "Controller", module + " Module Deactivated" );
 			}
 			else
 			{
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어요", owner.ScreenName, module ), tweet.Id );
+				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어", owner.ScreenName, module ), tweet.Id );
 				Log.Debug( "Controller", module + " Not Found" );
 			}
 		}

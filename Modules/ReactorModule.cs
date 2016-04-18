@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using TrueRED.Framework;
 using Tweetinvi;
@@ -12,11 +13,12 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ReactorModule : Modules.Module, IStreamListener, ITimeLimiter
+	class ReactorModule : Modules.Module, IStreamListener, ITimeLimiter, IUseSetting, ITimeTask
 	{
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
 		string reactorID;
+		long ownerId;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();
@@ -25,16 +27,21 @@ namespace TrueRED.Modules
 		Random _selector = new Random();
 		IAuthenticatedUser user;
 
-		public ReactorModule( IAuthenticatedUser user, string reactorStringset )
+		Dictionary<long, TimeSet> ExpireUsers = new Dictionary<long, TimeSet>();
+		int ExpireTime = 1; // 권장 : 10
+		int ExpireDelay= 1; // 권장 : 10
+
+		public ReactorModule( IAuthenticatedUser user, string ownerId, string reactorStringset )
 		{
 			this.IsRunning = true;
 			this.user = user;
 			reactorID = reactorStringset;
 			LoadStringsets( reactorStringset );
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
+			ownerId = ownerId;
 		}
 
-		public ReactorModule( IAuthenticatedUser user, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, reactorStringset )
+		public ReactorModule( IAuthenticatedUser user, string ownerId, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, ownerId, reactorStringset )
 		{
 			this.moduleWakeup = moduleWakeup;
 			this.moduleSleep = moduleSleep;
@@ -117,6 +124,22 @@ namespace TrueRED.Modules
 
 		private bool IsMatch( string category, string input, ITweet status )
 		{
+			lock ( ExpireUsers )
+			{
+				if ( ExpireUsers.ContainsKey( status.CreatedBy.Id ) )
+				{
+					var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
+					if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
+					{
+						return false;
+					}
+					else
+					{
+						ExpireUsers.Remove( status.CreatedBy.Id );
+					}
+				}
+			}
+
 			if ( status.Text.Replace( " ", "" ).Replace( "\n", "" ).Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
 			{
 				switch ( category )
@@ -147,7 +170,7 @@ namespace TrueRED.Modules
 		{
 			if ( moduleWakeup == null && moduleSleep == null ) return true;
 			if ( moduleWakeup.Hour == -1 && moduleSleep.Hour == -1 ) return true;
-			return TimeSet.Verification( TimeSet.GetCurrentTimeset( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
+			return TimeSet.Verification( new TimeSet( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
 		}
 
 		void IStreamListener.TweetCreateByAnyone( object sender, TweetReceivedEventArgs args )
@@ -158,8 +181,21 @@ namespace TrueRED.Modules
 			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
 
-			var cases = new List<int>();
+			// Debug commands.
+			if ( tweet.CreatedBy.Id == ownerId )
+			{
+				if ( tweet.Text.Contains( "ExpireUsers" ) )
+				{
+					var @out = string.Format("@{0} \n", tweet.CreatedBy.ScreenName);
+					foreach ( var item in ExpireUsers )
+					{
+						@out += string.Format( "{0} : {1}\n", item.Key, item.Value );
+					}
+					Tweet.PublishTweetInReplyTo( @out, tweet.Id );
+				}
+			}
 
+			var cases = new List<int>();
 			for ( int i = 0; i < reactor_category.Count; i++ )
 			{
 				var category = reactor_category[i];
@@ -197,6 +233,8 @@ namespace TrueRED.Modules
 				{
 					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
 					Log.Print( "Reactor", string.Format( "Send tweet [{0}]", result.Text ) );
+
+					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
 				}
 			}
 		}
@@ -274,6 +312,44 @@ namespace TrueRED.Modules
 		void IStreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
 		{
 
+		}
+
+		bool IUseSetting.OpenSettings( )
+		{
+			return true;
+		}
+
+		bool IUseSetting.SaveSettings( )
+		{
+			return true;
+		}
+
+		void ITimeTask.Run( )
+		{
+			while ( true )
+			{
+				if ( IsRunning )
+				{
+					lock ( ExpireUsers )
+					{
+						for ( int i = 0; i < ExpireUsers.Count; i++ )
+						{
+							var keys = new List<long>( ExpireUsers.Keys ) ;
+							var key = keys[i];
+							var item = ExpireUsers[key];
+							if ( TimeSet.Verification( new TimeSet( DateTime.Now ), item, new TimeSet( item.Hour, item.Minute + ExpireTime ) ) )
+							{
+								continue;
+							}
+							else
+							{
+								ExpireUsers.Remove( key );
+							}
+						}
+					}
+				}
+				Thread.Sleep( ExpireDelay * 60 );
+			}
 		}
 	}
 }

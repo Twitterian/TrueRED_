@@ -182,7 +182,7 @@ namespace TrueRED.Modules
 			if ( tweet.IsRetweet == true ) return;
 
 			// Debug commands.
-			if ( tweet.CreatedBy.Id == owner )
+			if ( tweet.CreatedBy.Id == owner.Id )
 			{
 				if ( tweet.Text.Contains( "ExpireUsers" ) )
 				{

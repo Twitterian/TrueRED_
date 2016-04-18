@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
@@ -81,10 +82,11 @@ namespace TrueRED.Modules
 			if ( !IsRunning ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
-			if ( tweet.InReplyToUserId == user.Id ) return;
+			if ( tweet.InReplyToUserId != user.Id ) return;
 
 			if ( tweet.Text.Contains( "날씨" ) )
 			{
+				Log.Print( "Weather", string.Format( "Catch tweet [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
 				// GPS로 위치 찾기
 				if ( tweet.Place != null )
 				{
@@ -92,12 +94,14 @@ namespace TrueRED.Modules
 					Framework.HttpRepeaters.Weather.getWeather( place.Latitude, place.Longitude,
 						delegate ( Framework.HttpRepeaters.Weather.WeatherResult response )
 						{
-							Tweet.PublishTweetInReplyTo( string.Format( "@{0} 바깥 날씨는 {1}이고, 바깥 온도는 {2}℃야", tweet.CreatedBy.ScreenName, response.weatherKr, response.tempreture ), tweet.Id );
+							var result = Tweet.PublishTweetInReplyTo( string.Format( "@{0} 바깥 날씨는 {1}이고, 바깥 온도는 {2}℃야", tweet.CreatedBy.ScreenName, response.weatherKr, response.tempreture ), tweet.Id );
+							Log.Print( "Weather", string.Format( "Send tweet [{0}]", result.Text) );
 						} );
 				}
 				// 문자열로 위치 찾기
 				else{
-					Tweet.PublishTweetInReplyTo( string.Format( "@{0} 미안해. 현재 GPS정보 없이는 날씨를 알려줄 수 없어", tweet.CreatedBy.ScreenName), tweet.Id );
+					var result = Tweet.PublishTweetInReplyTo( string.Format( "@{0} 미안해. 현재 GPS정보 없이는 날씨를 알려줄 수 없어", tweet.CreatedBy.ScreenName), tweet.Id );
+					Log.Print( "Weather", string.Format( "Send tweet [{0}]", result.Text ) );
 				}
 			}
 		}

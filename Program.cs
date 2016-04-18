@@ -45,8 +45,8 @@ namespace TrueRED
 			Log.Init( );
 			StringSetsManager.LoadStringSets( "Stringsets" );
 
-			var setting = new INIParser( Path.Combine( Directory.GetCurrentDirectory( ), "setting.ini" ) );
-			var AuthData = "Authenticate";
+			var setting = new INIParser( "Globals.ini" );
+			var AuthData = "Authenticate2";
 			string consumerKey = setting.GetValue( AuthData, "ConsumerKey" );
 			string consumerSecret = setting.GetValue( AuthData, "CconsumerSecret" );
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );
@@ -72,8 +72,8 @@ namespace TrueRED
 			#region Initialize Modules
 
 			var modules = new Dictionary<string, Module>();
-			modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor", new TimeSet( 20 ), new TimeSet( 29 ) ) );
-			modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor", new TimeSet( 5 ), new TimeSet( 12 ) ) );
+			modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor" ) );
+			modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor" ) );
 			modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
 			modules.Add( "Reflector", new ReflectorModule( user ) );
 			modules.Add( "Controller", new ControllerModule( user, owner, modules ) );
@@ -92,7 +92,7 @@ namespace TrueRED
 				if ( item.Value is IUseSetting )
 				{
 					var module = (IUseSetting)item.Value;
-					module.OpenSettings( Path.Combine( Directory.GetCurrentDirectory( ) + "/Settings", item.Key + ".ini" ) );
+					module.OpenSettings( Path.Combine( "Settings", item.Key + ".ini" ) );
 				}
 			}
 
@@ -105,7 +105,7 @@ namespace TrueRED
 				if ( item.Value is IUseSetting )
 				{
 					var module = (IUseSetting)item.Value;
-					module.SaveSettings( Path.Combine( Directory.GetCurrentDirectory( ) + "/Settings", item.Key + ".ini" ) );
+					module.SaveSettings( Path.Combine( "Settings", item.Key + ".ini" ) );
 				}
 			}
 		}

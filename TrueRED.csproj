@@ -43,6 +43,10 @@
       <HintPath>packages\TweetSharp.2.3.1\lib\4.0\Hammock.ClientProfile.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="INIFileParser, Version=2.2.4.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <HintPath>packages\ini-parser.2.2.4\lib\net20\INIFileParser.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
       <Private>True</Private>
@@ -90,12 +94,6 @@
     </Compile>
     <Compile Include="Display\AppConsole.Designer.cs">
       <DependentUpon>AppConsole.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Display\ModuleShowcase.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Display\ModuleShowcase.Designer.cs">
-      <DependentUpon>ModuleShowcase.cs</DependentUpon>
     </Compile>
     <Compile Include="Framework\HttpCore\HttpCommunicator.cs" />
     <Compile Include="Framework\HttpCore\HttpRepeater.cs" />

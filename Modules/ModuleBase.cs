@@ -44,15 +44,7 @@ namespace TrueRED.Modules
 
 		void AccessRevoked( object sender, AccessRevokedEventArgs args );
 	}
-
-	/// <summary>
-	/// ITimeLimiter 인터페이스를 통해 스크립트가 작동할 시간대를 설정할 수 있습니다.
-	/// </summary>
-	public interface ITimeLimiter
-	{
-		bool Verification( );
-	}
-
+	
 	/// <summary>
 	/// IUserSetting 인터페이스를 통해 별도 ini파일의 설정을 사용할 수 있습니다.
 	/// </summary>

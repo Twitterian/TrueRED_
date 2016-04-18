@@ -13,7 +13,7 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ReactorModule : Modules.Module, IStreamListener, ITimeLimiter, IUseSetting, ITimeTask
+	class ReactorModule : Modules.Module, IStreamListener, IUseSetting, ITimeTask
 	{
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
@@ -28,8 +28,8 @@ namespace TrueRED.Modules
 		IAuthenticatedUser user;
 
 		Dictionary<long, TimeSet> ExpireUsers = new Dictionary<long, TimeSet>();
-		int ExpireTime; // 권장 : 10
-		int ExpireDelay; // 권장 : 10
+		int ExpireTime;
+		int ExpireDelay;
 
 		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset )
 		{
@@ -38,12 +38,6 @@ namespace TrueRED.Modules
 			LoadStringsets( reactorStringset );
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 			this.owner = owner;
-		}
-
-		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset, TimeSet moduleWakeup, TimeSet moduleSleep ) : this( user, owner, reactorStringset )
-		{
-			this.moduleWakeup = moduleWakeup;
-			this.moduleSleep = moduleSleep;
 		}
 
 		public void LoadStringsets( string stringSet )
@@ -154,7 +148,7 @@ namespace TrueRED.Modules
 						}
 						break;
 					case "Public":
-						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null )
+						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
 						{
 							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							return true;
@@ -319,6 +313,8 @@ namespace TrueRED.Modules
 			var running = setting.GetValue("Module", "IsRunning");
 			var expiretime = setting.GetValue("Expire", "Time");
 			var expiredelay = setting.GetValue("Expire", "Delay");
+			var starttime = setting.GetValue("TimeLimit", "StartTime");
+			var endtime = setting.GetValue("TimeLimit", "EndTime");
 
 			if ( !string.IsNullOrEmpty( running ) )
 			{
@@ -347,14 +343,34 @@ namespace TrueRED.Modules
 				ExpireDelay = 5;
 			}
 
+			if ( !string.IsNullOrEmpty( starttime ) )
+			{
+				this.moduleWakeup = TimeSet.FromString( starttime );
+			}
+			else
+			{
+				this.moduleWakeup = new TimeSet( -1 );
+			}
+
+			if ( !string.IsNullOrEmpty( endtime ) )
+			{
+				this.moduleSleep = TimeSet.FromString( endtime );
+			}
+			else
+			{
+				this.moduleSleep = new TimeSet( -1 );
+			}
 		}
 
 		void IUseSetting.SaveSettings( string path )
 		{
 			var setting = new INIParser(path);
-			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
-			setting.SetValue( "Expire", "Time", ExpireTime.ToString( ) );
-			setting.SetValue( "Expire", "Delay", ExpireDelay.ToString( ) );
+			setting.SetValue( "Module", "IsRunning", IsRunning );
+			setting.SetValue( "Expire", "Time", ExpireTime );
+			setting.SetValue( "Expire", "Delay", ExpireDelay );
+			setting.SetValue( "TimeLimit", "StartTime", moduleWakeup );
+			setting.SetValue( "TimeLimit", "EndTime", moduleWakeup );
+			setting.Save( );
 		}
 
 		void ITimeTask.Run( )

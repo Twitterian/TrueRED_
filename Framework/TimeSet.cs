@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TrueRED.Framework
@@ -28,7 +29,7 @@ namespace TrueRED.Framework
 			this.Hour = now.Hour;
 			this.Minute = now.Minute;
 		}
-		
+
 		public static bool Verification( TimeSet current, TimeSet start, TimeSet end )
 		{
 			if ( end.Hour < 24 )
@@ -104,6 +105,14 @@ namespace TrueRED.Framework
 		public override string ToString( )
 		{
 			return string.Format( "{0}시 {1}분", this.Hour, this.Minute );
+		}
+
+		public static TimeSet FromString( string timeStr )
+		{
+			var hour = int.Parse(new Regex("[0-9]+시").Match(timeStr).Value.Replace("시", ""));
+			var minute = int.Parse(new Regex("[0-9]+분").Match(timeStr).Value.Replace("분", ""));
+
+			return new TimeSet( hour, minute );
 		}
 
 	}

@@ -79,6 +79,7 @@ namespace TrueRED.Modules
 		{
 			var setting = new INIParser(path);
 			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
+			setting.Save( );
 		}
 	}
 }

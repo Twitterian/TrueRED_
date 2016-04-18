@@ -71,62 +71,47 @@ namespace TrueRED
 			#region Initialize Modules
 
 			var modules = new Dictionary<string, Module>();
-			var iniModules = new List<IUseSetting>();
-			var streamModules = new List<IStreamListener>();
-			var timetasks = new List<ITimeTask>();
-
-			var YoruHello = new ReactorModule(user,  "YoruHelloReactor", new TimeSet(20), new TimeSet(29));
-			modules.Add( "YoruHello", YoruHello );
-			streamModules.Add( YoruHello );
-
-			var AsaHello = new ReactorModule(user,  "AsaHelloReactor", new TimeSet(5), new TimeSet(12));
-			modules.Add( "AsaHello", AsaHello );
-			streamModules.Add( AsaHello );
-
-			var TimeTweet = new SchedulerModule(user, "TimeTweet" );
-			modules.Add( "TimeTweet", TimeTweet );
-			timetasks.Add( TimeTweet );
-
-			var AutoFollow = new ReflectorModule(user);
-			modules.Add( "AutoFollow", AutoFollow );
-			streamModules.Add( AutoFollow );
-
-			var Switcher = new ControllerModule(user, owner, modules);
-			modules.Add( "Switcher", Switcher );
-			streamModules.Add( Switcher );
-
-			var Weather = new WeatherModule(user);
-			modules.Add( "Weather", Weather );
-			streamModules.Add( Weather );
+			modules.Add( "YoruHello", new ReactorModule( user, "YoruHelloReactor", new TimeSet( 20 ), new TimeSet( 29 ) ) );
+			modules.Add( "AsaHello", new ReactorModule( user, "AsaHelloReactor", new TimeSet( 5 ), new TimeSet( 12 ) ) );
+			modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
+			modules.Add( "Reflector", new ReflectorModule( user ) );
+			modules.Add( "Controller", new ControllerModule( user, owner, modules ) );
+			modules.Add( "Weather", new WeatherModule( user ) );
 
 			#endregion
 
-			foreach ( var item in timetasks )
+
+			foreach ( var item in modules )
 			{
-				Task.Factory.StartNew( ( ) => item.Run( ) );
+				if ( item.Value is ITimeTask )
+				{
+					var module = (ITimeTask)item.Value;
+					Task.Factory.StartNew( ( ) => module.Run( ) );
+				}
+
+				if ( item.Value is IUseSetting )
+				{
+					var module = (IUseSetting)item.Value;
+					module.OpenSettings( );
+				}
 			}
 
-			foreach ( var item in iniModules )
-			{
-				item.OpenSettings( );
-			}
-
-			CreateStream( streamModules );
+			CreateStream( modules.Values.OfType<IStreamListener>( ) );
 
 			new Display.AppConsole( ).ShowDialog( );
 
-			foreach ( var item in iniModules )
+			foreach ( IUseSetting item in modules.Values.OfType<IUseSetting>( ) )
 			{
 				item.SaveSettings( );
 			}
 		}
 
-		static void CreateStream( List<IStreamListener> modules )
+		static void CreateStream( IEnumerable<IStreamListener> modules )
 		{
-			if ( modules.Count == 0 ) return;
+			if ( modules.Count( ) == 0 ) return;
 
 			var userStream = Tweetinvi.Stream.CreateUserStream();
-			foreach ( var module in modules )
+			foreach ( IStreamListener module in modules )
 			{
 				userStream.TweetCreatedByAnyone += module.TweetCreateByAnyone;
 				userStream.MessageSent += module.MessageSent;

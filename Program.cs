@@ -149,8 +149,13 @@ namespace TrueRED
 				userStream.FriendIdsReceived += module.FriendIdsReceived;
 				userStream.AccessRevoked += module.AccessRevoked;
 			}
+			userStream.StreamStopped += delegate
+			{
+				Log.Error( "Program", "Stream was stopped. restarting..." );
+				CreateStream( modules );
+			};
 			userStream.StartStreamAsync( );
-
+			Log.Http( "Program", "Stream is running now" );
 		}
 	}
 }

@@ -53,7 +53,7 @@ namespace TrueRED
 			string accessSecret = setting.GetValue( AuthData, "AccessSecret" );
 			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
 			var user = User.GetAuthenticatedUser( );
-			Log.Debug( "UserCredentials :", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
+			Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
 
 			long ownerID = 0;
 			try

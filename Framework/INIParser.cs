@@ -13,17 +13,30 @@ namespace TrueRED.Framework
 	public class INIParser
 	{
 		private string iniPath;
-		private FileIniDataParser parser;
 		private IniData data;
 
 		public INIParser( string path )
 		{
 			this.iniPath = path;
-			parser = new FileIniDataParser( );
 			if ( File.Exists( iniPath ) )
+			{
 				data = new FileIniDataParser( ).ReadFile( iniPath );
+				string @out = string.Format("Read INI - [{0}]", iniPath);
+				foreach ( var section in data.Sections )
+				{
+					@out += string.Format( "\n[{0}]", section.SectionName );
+					foreach ( var key in section.Keys )
+					{
+						@out += string.Format( "\n\t{0} = {1}", key.KeyName, data[section.SectionName][key.KeyName]);
+					}
+				}
+				Log.Debug( "INIParser", @out );
+			}
 			else
+			{
+				Log.Error( "INIParser", string.Format( "[{0}] is not correct directory. new inidata generated.", iniPath ) );
 				data = new IniData( );
+			}
 		}
 
 		#region WINApi
@@ -80,7 +93,7 @@ namespace TrueRED.Framework
 
 		internal void Save( )
 		{
-			parser.WriteFile( iniPath, data, Encoding.UTF8 );
+			new FileIniDataParser().WriteFile( iniPath, data, Encoding.UTF8 );
 		}
 
 		#region FileIniDataParser

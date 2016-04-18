@@ -8,21 +8,27 @@ namespace TrueRED.Framework
 {
 	public class TimeSet
 	{
-		public TimeSet( int Hour, int Minute = 0 )
-		{
-			this.Hour = Hour;
-			this.Minute = Minute;
-		}
 
 		public int Hour { get; private set; }
 		public int Minute { get; private set; }
 
-		public static TimeSet GetCurrentTimeset( DateTime date )
+		public TimeSet( int Hour, int Minute = 0 )
 		{
-			return new TimeSet( date.Hour, date.Minute );
+			this.Hour = Hour;
+			this.Minute = Minute;
+			if ( this.Minute > 60 )
+			{
+				this.Hour += Minute / 60;
+				this.Minute %= 60;
+			}
 		}
 
-		// 검증 함수 검증 필요
+		public TimeSet( DateTime now )
+		{
+			this.Hour = now.Hour;
+			this.Minute = now.Minute;
+		}
+		
 		public static bool Verification( TimeSet current, TimeSet start, TimeSet end )
 		{
 			if ( end.Hour < 24 )

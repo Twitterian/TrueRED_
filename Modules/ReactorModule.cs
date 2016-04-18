@@ -18,7 +18,7 @@ namespace TrueRED.Modules
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
 		string reactorID;
-		IUser owner == null;
+		IUser owner = null;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();

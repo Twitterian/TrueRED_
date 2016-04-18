@@ -10,17 +10,16 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class SchedulerModule : Modules.Module, ITimeTask
+	class SchedulerModule : Modules.Module, ITimeTask, IUseSetting
 	{
 		IAuthenticatedUser user;
-		private string stringsetPath;
+		private string StringsetPath;
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 
 		public SchedulerModule( IAuthenticatedUser user, string stringsetPath )
 		{
 			this.IsRunning = true;
-			this.user = user;
-			this.stringsetPath = stringsetPath;
+			this.StringsetPath = stringsetPath;
 			LoadStringsets( stringsetPath );
 		}
 
@@ -59,6 +58,27 @@ namespace TrueRED.Modules
 				}
 				Thread.Sleep( 1000 );
 			}
+		}
+
+		void IUseSetting.OpenSettings( string path )
+		{
+			var setting = new INIParser(path);
+			var running = setting.GetValue("Module", "IsRunning");
+
+			if ( !string.IsNullOrEmpty( running ) )
+			{
+				IsRunning = bool.Parse( running );
+			}
+			else
+			{
+				IsRunning = true;
+			}
+		}
+
+		void IUseSetting.SaveSettings( string path )
+		{
+			var setting = new INIParser(path);
+			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
 		}
 	}
 }

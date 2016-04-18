@@ -10,13 +10,12 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class WeatherModule : Module, IStreamListener
+	class WeatherModule : Module, IStreamListener, IUseSetting
 	{
 		private IAuthenticatedUser user;
 
 		public WeatherModule( IAuthenticatedUser user )
 		{
-			IsRunning = true;
 			this.user = user;
 		}
 
@@ -124,6 +123,27 @@ namespace TrueRED.Modules
 		void IStreamListener.UnFollowedUser( object sender, UserFollowedEventArgs args )
 		{
 
+		}
+
+		void IUseSetting.OpenSettings( string path )
+		{
+			var setting = new INIParser(path);
+			var running = setting.GetValue("Module", "IsRunning");
+
+			if ( !string.IsNullOrEmpty( running ) )
+			{
+				IsRunning = bool.Parse( running );
+			}
+			else
+			{
+				IsRunning = true;
+			}
+		}
+
+		void IUseSetting.SaveSettings( string path )
+		{
+			var setting = new INIParser(path);
+			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
 		}
 	}
 }

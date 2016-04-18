@@ -18,7 +18,6 @@ namespace TrueRED.Modules
 
 		public ControllerModule( IAuthenticatedUser user, IUser owner, Dictionary<string, Modules.Module> modules )
 		{
-			this.IsRunning = true;
 			this.user = user;
 			this.owner = owner;
 			this.modules = modules;
@@ -122,6 +121,8 @@ namespace TrueRED.Modules
 			}
 			else if ( tweet.Text.Contains( "GetModuleState" ) )
 			{
+				Log.Debug( "Controller", string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+
 				GetModuleState( tweet );
 			}
 		}

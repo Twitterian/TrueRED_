@@ -92,7 +92,8 @@ namespace TrueRED
 				if ( item.Value is IUseSetting )
 				{
 					var module = (IUseSetting)item.Value;
-					module.OpenSettings( Path.Combine( "Settings", item.Key + ".ini" ) );
+					var parser = new INIParser(Path.Combine( "Settings", item.Key + ".ini" ));
+					module.OpenSettings( parser );
 				}
 			}
 
@@ -105,7 +106,9 @@ namespace TrueRED
 				if ( item.Value is IUseSetting )
 				{
 					var module = (IUseSetting)item.Value;
-					module.SaveSettings( Path.Combine( "Settings", item.Key + ".ini" ) );
+					var parser = new INIParser(Path.Combine( "Settings", item.Key + ".ini" ));
+					module.SaveSettings( parser );
+					parser.Save( );
 				}
 			}
 		}

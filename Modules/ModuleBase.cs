@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
 
 namespace TrueRED.Modules
@@ -50,9 +51,8 @@ namespace TrueRED.Modules
 	/// </summary>
 	public interface IUseSetting
 	{
-		void OpenSettings( string path );
-
-		void SaveSettings( string path );
+		void OpenSettings( INIParser parser );
+		void SaveSettings( INIParser parser );
 	}
 
 	/// <summary>

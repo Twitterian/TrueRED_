@@ -10,7 +10,7 @@ using IniParser.Model;
 
 namespace TrueRED.Framework
 {
-	class INIParser
+	public class INIParser
 	{
 		private string iniPath;
 		private FileIniDataParser parser;

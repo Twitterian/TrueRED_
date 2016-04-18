@@ -10,11 +10,11 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ControllerModule : Modules.Module, IStreamListener
+	class ControllerModule : Module, IStreamListener
 	{
 		IAuthenticatedUser user;
 		IUser owner;
-		Dictionary<string, Modules.Module> modules;
+		Dictionary<string, Module> modules;
 
 		public ControllerModule( IAuthenticatedUser user, IUser owner, Dictionary<string, Modules.Module> modules )
 		{

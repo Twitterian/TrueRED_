@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TrueRED.Framework
 {
-	class StringSetsManager
+	public class StringSetsManager
 	{
 		static Dictionary<string, List<string>> _list = new Dictionary<string, List<string>>();
 		static Random _selector = new Random();

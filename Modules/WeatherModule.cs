@@ -10,7 +10,7 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class WeatherModule : Module, IStreamListener, IUseSetting
+	public class WeatherModule : Module, IStreamListener, IUseSetting
 	{
 		private IAuthenticatedUser user;
 
@@ -94,11 +94,12 @@ namespace TrueRED.Modules
 						delegate ( Framework.HttpRepeaters.Weather.WeatherResult response )
 						{
 							var result = Tweet.PublishTweetInReplyTo( string.Format( "@{0} 바깥 날씨는 {1}이고, 바깥 온도는 {2}℃야", tweet.CreatedBy.ScreenName, response.weatherKr, response.tempreture ), tweet.Id );
-							Log.Print( "Weather", string.Format( "Send tweet [{0}]", result.Text) );
+							Log.Print( "Weather", string.Format( "Send tweet [{0}]", result.Text ) );
 						} );
 				}
 				// 문자열로 위치 찾기
-				else{
+				else
+				{
 					var result = Tweet.PublishTweetInReplyTo( string.Format( "@{0} 미안해. 현재 GPS정보 없이는 날씨를 알려줄 수 없어", tweet.CreatedBy.ScreenName), tweet.Id );
 					Log.Print( "Weather", string.Format( "Send tweet [{0}]", result.Text ) );
 				}
@@ -125,10 +126,9 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( string path )
+		void IUseSetting.OpenSettings( INIParser parser )
 		{
-			var setting = new INIParser(path);
-			var running = setting.GetValue("Module", "IsRunning");
+			var running = parser.GetValue("Module", "IsRunning");
 
 			if ( !string.IsNullOrEmpty( running ) )
 			{
@@ -140,11 +140,9 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( string path )
+		void IUseSetting.SaveSettings( INIParser parser )
 		{
-			var setting = new INIParser(path);
-			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
-			setting.Save( );
+			parser.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
 		}
 	}
 }

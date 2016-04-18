@@ -9,7 +9,7 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ReflectorModule : Modules.Module, IStreamListener, IUseSetting
+	public class ReflectorModule : Module, IStreamListener, IUseSetting
 	{
 		IAuthenticatedUser user;
 		public ReflectorModule( IAuthenticatedUser user )
@@ -36,7 +36,7 @@ namespace TrueRED.Modules
 		{
 			if ( !IsRunning ) return;
 			user.FollowUser( args.User );
-			Log.Http( "Reflector worked", string.Format( "AutoFollowed {0}({1})", args.User.Name, args.User.ScreenName )) ;
+			Log.Http( "Reflector worked", string.Format( "AutoFollowed {0}({1})", args.User.Name, args.User.ScreenName ) );
 		}
 
 		void IStreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
@@ -97,10 +97,9 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( string path )
+		void IUseSetting.OpenSettings( INIParser parser )
 		{
-			var setting = new INIParser(path);
-			var running = setting.GetValue("Module", "IsRunning");
+			var running = parser.GetValue("Module", "IsRunning");
 
 			if ( !string.IsNullOrEmpty( running ) )
 			{
@@ -112,11 +111,9 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( string path )
+		void IUseSetting.SaveSettings( INIParser parser )
 		{
-			var setting = new INIParser(path);
-			setting.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
-			setting.Save( );
+			parser.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
 		}
 	}
 }

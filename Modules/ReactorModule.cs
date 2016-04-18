@@ -13,7 +13,7 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ReactorModule : Modules.Module, IStreamListener, IUseSetting, ITimeTask
+	public class ReactorModule : Module, IStreamListener, IUseSetting, ITimeTask
 	{
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
@@ -307,14 +307,13 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( string path )
+		void IUseSetting.OpenSettings( INIParser path )
 		{
-			var setting = new INIParser(path);
-			var running = setting.GetValue("Module", "IsRunning");
-			var expiretime = setting.GetValue("Expire", "Time");
-			var expiredelay = setting.GetValue("Expire", "Delay");
-			var starttime = setting.GetValue("TimeLimit", "StartTime");
-			var endtime = setting.GetValue("TimeLimit", "EndTime");
+			var running = path.GetValue("Module", "IsRunning");
+			var expiretime = path.GetValue("Expire", "Time");
+			var expiredelay = path.GetValue("Expire", "Delay");
+			var starttime = path.GetValue("TimeLimit", "StartTime");
+			var endtime = path.GetValue("TimeLimit", "EndTime");
 
 			if ( !string.IsNullOrEmpty( running ) )
 			{
@@ -362,15 +361,13 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( string path )
+		void IUseSetting.SaveSettings( INIParser path )
 		{
-			var setting = new INIParser(path);
-			setting.SetValue( "Module", "IsRunning", IsRunning );
-			setting.SetValue( "Expire", "Time", ExpireTime );
-			setting.SetValue( "Expire", "Delay", ExpireDelay );
-			setting.SetValue( "TimeLimit", "StartTime", moduleWakeup );
-			setting.SetValue( "TimeLimit", "EndTime", moduleWakeup );
-			setting.Save( );
+			path.SetValue( "Module", "IsRunning", IsRunning );
+			path.SetValue( "Expire", "Time", ExpireTime );
+			path.SetValue( "Expire", "Delay", ExpireDelay );
+			path.SetValue( "TimeLimit", "StartTime", moduleWakeup );
+			path.SetValue( "TimeLimit", "EndTime", moduleWakeup );
 		}
 
 		void ITimeTask.Run( )

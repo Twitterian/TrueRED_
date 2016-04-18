@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TrueRED.Framework
 {
-	class Log
+	public class Log
 	{
 		public static bool IsInited { get; private set; }
 		public static bool LogTrace { get; private set; }
@@ -46,7 +46,7 @@ namespace TrueRED.Framework
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Output( tag, message );
-        }
+		}
 
 		private static void Output( string tag, string message )
 		{
@@ -86,5 +86,5 @@ namespace TrueRED.Framework
 			Trace.Unindent( );
 		}
 	}
-	
+
 }

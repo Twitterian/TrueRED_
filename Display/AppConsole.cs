@@ -70,7 +70,7 @@ namespace TrueRED.Display
 			var i = checkedlistbox_modules.SelectedIndex;
 			Modules[i].IsRunning = !Modules[i].IsRunning;
 
-			Log.Debug( "AppConsole", string.Format( "{0} 모듈이 {1}활성화 했어", Modules[i].Name, ( Modules[i].IsRunning ? "" : "비" ) ) );
+			Log.Debug( "AppConsole", string.Format( "{0} 모듈을 {1}활성화 했어", Modules[i].Name, ( Modules[i].IsRunning ? "" : "비" ) ) );
 		}
 	}
 

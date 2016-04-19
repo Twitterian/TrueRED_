@@ -367,7 +367,7 @@ namespace TrueRED.Modules
 			path.SetValue( "Expire", "Time", ExpireTime );
 			path.SetValue( "Expire", "Delay", ExpireDelay );
 			path.SetValue( "TimeLimit", "StartTime", moduleWakeup );
-			path.SetValue( "TimeLimit", "EndTime", moduleWakeup );
+			path.SetValue( "TimeLimit", "EndTime", moduleSleep );
 		}
 
 		void ITimeTask.Run( )

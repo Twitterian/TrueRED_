@@ -11,6 +11,9 @@ namespace TrueRED.Modules
 {
 	public class ReflectorModule : Module, IStreamListener, IUseSetting
 	{
+		public static string ModuleName { get; protected set; } = "Reflector";
+		public static string ModuleDescription { get; protected set; } = "Auto mutal-follow";
+
 		public ReflectorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
 

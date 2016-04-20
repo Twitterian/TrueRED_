@@ -12,12 +12,13 @@ namespace TrueRED.Modules
 {
 	class ControllerModule : Module, IStreamListener
 	{
+		public static string ModuleName { get; protected set; } = "Controller";
+		public static string ModuleDescription { get; protected set; } = "Activaste / Deactivate modules with mention";
+
 		Dictionary<string, Module> modules;
 
 		public ControllerModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
-			this.user = user;
-			this.owner = owner;
 			this.modules = modules;
 		}
 

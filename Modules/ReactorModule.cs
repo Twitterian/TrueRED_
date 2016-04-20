@@ -15,6 +15,9 @@ namespace TrueRED.Modules
 {
 	public class ReactorModule : Module, IStreamListener, IUseSetting, ITimeTask
 	{
+		public static string ModuleName { get; protected set; } = "Reactor";
+		public static string ModuleDescription { get; protected set; } = "Reaction timeline";
+
 		string stringset;
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;

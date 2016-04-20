@@ -12,6 +12,10 @@ namespace TrueRED.Modules
 {
 	public class SchedulerModule : Modules.Module, ITimeTask, IUseSetting
 	{
+
+		public static string ModuleName { get; protected set; } = "Scheduler";
+		public static string ModuleDescription { get; protected set; } = "Tweet on setted time";
+
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;
 

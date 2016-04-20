@@ -66,7 +66,6 @@ namespace TrueRED.Modules
 
 	public class Module : IUseSetting
 	{
-
 		private bool _IsRunning;
 		public bool IsRunning
 		{
@@ -84,9 +83,9 @@ namespace TrueRED.Modules
 			}
 		}
 
-		public string Name { get; set; }
-		protected IAuthenticatedUser user { get; set; }
-		protected IUser owner { get; set; }
+		public string Name { get; private set; }
+		protected IAuthenticatedUser user { get; private set; }
+		protected IUser owner { get; private set; }
 
 		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
 		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener

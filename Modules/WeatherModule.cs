@@ -12,6 +12,9 @@ namespace TrueRED.Modules
 {
 	public class WeatherModule : Module, IStreamListener, IUseSetting
 	{
+		public static string ModuleName { get; protected set; } = "Weather";
+		public static string ModuleDescription { get; protected set; } = "Tweet current weather";
+
 		public WeatherModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
 

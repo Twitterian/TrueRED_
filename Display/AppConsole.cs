@@ -90,7 +90,7 @@ namespace TrueRED.Display
 
 		private void button_addModule_Click( object sender, EventArgs e )
 		{
-
+			new MakeModule( ).ShowDialog( );
 		}
 
 		private void button_rmvModule_Click( object sender, EventArgs e )

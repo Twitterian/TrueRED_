@@ -95,6 +95,7 @@
     <Compile Include="Display\AppConsole.Designer.cs">
       <DependentUpon>AppConsole.cs</DependentUpon>
     </Compile>
+    <Compile Include="Framework\Console.cs" />
     <Compile Include="Framework\HttpCore\HttpCommunicator.cs" />
     <Compile Include="Framework\HttpCore\HttpRepeater.cs" />
     <Compile Include="Framework\HttpRepeaters\Weather.cs" />

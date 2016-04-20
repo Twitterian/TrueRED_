@@ -9,7 +9,6 @@ namespace TrueRED.Framework
 {
 	public class TimeSet
 	{
-
 		public int Hour { get; private set; }
 		public int Minute { get; private set; }
 

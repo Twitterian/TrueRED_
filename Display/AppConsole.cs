@@ -82,6 +82,12 @@ namespace TrueRED.Display
 
 			Log.Debug( "AppConsole", string.Format( "{0} 모듈을 {1}활성화 했어", Modules[i].Name, ( Modules[i].IsRunning ? "" : "비" ) ) );
 		}
+
+		private void button_console_Click( object sender, EventArgs e )
+		{
+			ConsoleTool.ConsoleVisible = !ConsoleTool.ConsoleVisible;
+			button_getModule.Enabled = ConsoleTool.ConsoleVisible;
+        }
 	}
 
 	public class ModuleObject

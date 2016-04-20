@@ -82,13 +82,6 @@ namespace TrueRED
 				}
 			}
 			
-			//modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor" ) );
-			//modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor" ) );
-			//modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
-			//modules.Add( "Reflector", new ReflectorModule( user ) );
-			//modules.Add( "Controller", new ControllerModule( user, owner, modules ) );
-			//modules.Add( "Weather", new WeatherModule( user ) );
-
 			#endregion
 
 			foreach ( var item in modules )

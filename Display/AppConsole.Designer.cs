@@ -33,6 +33,9 @@ namespace TrueRED.Display
 			this.checkedlistbox_modules = new System.Windows.Forms.CheckedListBox();
 			this.button_getModule = new MaterialSkin.Controls.MaterialFlatButton();
 			this.button_console = new MaterialSkin.Controls.MaterialFlatButton();
+			this.button_addModule = new MaterialSkin.Controls.MaterialFlatButton();
+			this.label_module = new MaterialSkin.Controls.MaterialLabel();
+			this.button_rmvModule = new MaterialSkin.Controls.MaterialFlatButton();
 			this.SuspendLayout();
 			// 
 			// button_exit
@@ -41,7 +44,7 @@ namespace TrueRED.Display
 			this.button_exit.AutoSize = true;
 			this.button_exit.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.button_exit.Depth = 0;
-			this.button_exit.Location = new System.Drawing.Point(180, 199);
+			this.button_exit.Location = new System.Drawing.Point(248, 306);
 			this.button_exit.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.button_exit.MouseState = MaterialSkin.MouseState.HOVER;
 			this.button_exit.Name = "button_exit";
@@ -60,7 +63,7 @@ namespace TrueRED.Display
 			this.checkedlistbox_modules.FormattingEnabled = true;
 			this.checkedlistbox_modules.Location = new System.Drawing.Point(13, 77);
 			this.checkedlistbox_modules.Name = "checkedlistbox_modules";
-			this.checkedlistbox_modules.Size = new System.Drawing.Size(120, 148);
+			this.checkedlistbox_modules.Size = new System.Drawing.Size(127, 244);
 			this.checkedlistbox_modules.TabIndex = 1;
 			// 
 			// button_getModule
@@ -69,7 +72,7 @@ namespace TrueRED.Display
 			this.button_getModule.AutoSize = true;
 			this.button_getModule.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.button_getModule.Depth = 0;
-			this.button_getModule.Location = new System.Drawing.Point(167, 162);
+			this.button_getModule.Location = new System.Drawing.Point(235, 269);
 			this.button_getModule.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.button_getModule.MouseState = MaterialSkin.MouseState.HOVER;
 			this.button_getModule.Name = "button_getModule";
@@ -86,7 +89,7 @@ namespace TrueRED.Display
 			this.button_console.AutoSize = true;
 			this.button_console.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.button_console.Depth = 0;
-			this.button_console.Location = new System.Drawing.Point(148, 125);
+			this.button_console.Location = new System.Drawing.Point(216, 232);
 			this.button_console.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.button_console.MouseState = MaterialSkin.MouseState.HOVER;
 			this.button_console.Name = "button_console";
@@ -97,11 +100,59 @@ namespace TrueRED.Display
 			this.button_console.UseVisualStyleBackColor = true;
 			this.button_console.Click += new System.EventHandler(this.button_console_Click);
 			// 
+			// button_addModule
+			// 
+			this.button_addModule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.button_addModule.AutoSize = true;
+			this.button_addModule.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.button_addModule.Depth = 0;
+			this.button_addModule.Location = new System.Drawing.Point(250, 102);
+			this.button_addModule.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+			this.button_addModule.MouseState = MaterialSkin.MouseState.HOVER;
+			this.button_addModule.Name = "button_addModule";
+			this.button_addModule.Primary = false;
+			this.button_addModule.Size = new System.Drawing.Size(39, 36);
+			this.button_addModule.TabIndex = 2;
+			this.button_addModule.Text = "Add";
+			this.button_addModule.UseVisualStyleBackColor = true;
+			// 
+			// label_module
+			// 
+			this.label_module.AutoSize = true;
+			this.label_module.Depth = 0;
+			this.label_module.Font = new System.Drawing.Font("Roboto", 11F);
+			this.label_module.ForeColor = System.Drawing.Color.Gray;
+			this.label_module.Location = new System.Drawing.Point(231, 77);
+			this.label_module.MouseState = MaterialSkin.MouseState.HOVER;
+			this.label_module.Name = "label_module";
+			this.label_module.Size = new System.Drawing.Size(59, 19);
+			this.label_module.TabIndex = 0;
+			this.label_module.Text = "Module";
+			// 
+			// button_rmvModule
+			// 
+			this.button_rmvModule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.button_rmvModule.AutoSize = true;
+			this.button_rmvModule.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.button_rmvModule.Depth = 0;
+			this.button_rmvModule.Location = new System.Drawing.Point(223, 139);
+			this.button_rmvModule.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+			this.button_rmvModule.MouseState = MaterialSkin.MouseState.HOVER;
+			this.button_rmvModule.Name = "button_rmvModule";
+			this.button_rmvModule.Primary = false;
+			this.button_rmvModule.Size = new System.Drawing.Size(66, 36);
+			this.button_rmvModule.TabIndex = 2;
+			this.button_rmvModule.Text = "Remove";
+			this.button_rmvModule.UseVisualStyleBackColor = true;
+			// 
 			// AppConsole
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(234, 239);
+			this.ClientSize = new System.Drawing.Size(302, 346);
+			this.Controls.Add(this.label_module);
+			this.Controls.Add(this.button_rmvModule);
+			this.Controls.Add(this.button_addModule);
 			this.Controls.Add(this.button_console);
 			this.Controls.Add(this.button_getModule);
 			this.Controls.Add(this.checkedlistbox_modules);
@@ -118,5 +169,8 @@ namespace TrueRED.Display
 		private MaterialFlatButton button_exit;
 		private MaterialFlatButton button_getModule;
 		private MaterialFlatButton button_console;
+		private MaterialFlatButton button_addModule;
+		private MaterialLabel label_module;
+		private MaterialFlatButton button_rmvModule;
 	}
 }

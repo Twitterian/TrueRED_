@@ -92,6 +92,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Display\TwitterOAuthVerifier.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Display\TwitterOAuthVerifier.Designer.cs">
+      <DependentUpon>TwitterOAuthVerifier.cs</DependentUpon>
+    </Compile>
     <Compile Include="Display\AppConsole.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -111,6 +117,7 @@
     <Compile Include="Framework\INIParser.cs" />
     <Compile Include="Framework\Log.cs" />
     <Compile Include="Framework\StringSetsManager.cs" />
+    <Compile Include="Framework\TwitterOAuth.cs" />
     <Compile Include="Modules\ReflectorModule.cs" />
     <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Modules\ReactorModule.cs" />
@@ -126,6 +133,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Display\TwitterOAuthVerifier.resx">
+      <DependentUpon>TwitterOAuthVerifier.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Display\AppConsole.resx">
       <DependentUpon>AppConsole.cs</DependentUpon>
     </EmbeddedResource>

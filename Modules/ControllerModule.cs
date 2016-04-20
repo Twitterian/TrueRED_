@@ -12,11 +12,9 @@ namespace TrueRED.Modules
 {
 	class ControllerModule : Module, IStreamListener
 	{
-		IAuthenticatedUser user;
-		IUser owner;
 		Dictionary<string, Module> modules;
 
-		public ControllerModule( IAuthenticatedUser user, IUser owner, Dictionary<string, Modules.Module> modules )
+		public ControllerModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
 			this.user = user;
 			this.owner = owner;

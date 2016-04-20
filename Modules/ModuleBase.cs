@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
+using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
@@ -63,16 +64,8 @@ namespace TrueRED.Modules
 		void Run( );
 	}
 
-	public class Module
+	public class Module : IUseSetting
 	{
-		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
-		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener
-		{
-			get
-			{
-				return _ModuleStateChangeListener;
-			}
-		}
 
 		private bool _IsRunning;
 		public bool IsRunning
@@ -89,6 +82,85 @@ namespace TrueRED.Modules
 					}
 				}
 			}
+		}
+
+		public string Name { get; set; }
+		protected IAuthenticatedUser user { get; set; }
+		protected IUser owner { get; set; }
+
+		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
+		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener
+		{
+			get
+			{
+				return _ModuleStateChangeListener;
+			}
+		}
+
+		protected Module( string name, IAuthenticatedUser user, IUser owner )
+		{
+			this.Name = name;
+			this.user = user;
+			this.owner = owner;
+		}
+
+		public static Module Create( INIParser parser, IAuthenticatedUser user, IUser owner )
+		{
+			var running = parser.GetValue("Module", "IsRunning");
+			var type = parser.GetValue("Module", "Type");
+			var name = parser.GetValue("Module", "Name");
+
+			Module module = null;
+
+			if ( type == typeof( ReactorModule ).FullName )
+			{
+				module = new ReactorModule( name, user, owner);
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
+			else if ( type == typeof( ControllerModule ).FullName )
+			{
+				module = new ControllerModule( name, user, owner );
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
+			else if ( type == typeof( ReflectorModule ).FullName )
+			{
+				module = new ReflectorModule( name, user, owner );
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
+			else if ( type == typeof( SchedulerModule ).FullName )
+			{
+				module = new SchedulerModule( name, user, owner );
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
+			else if ( type == typeof( WeatherModule ).FullName )
+			{
+				module = new WeatherModule( name, user, owner );
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
+			else
+			{
+				return null;
+			}
+
+			if ( !string.IsNullOrEmpty( running ) )
+			{
+				module.IsRunning = bool.Parse( running );
+			}
+			else
+			{
+				module.IsRunning = true;
+			}
+
+			return module;
+		}
+
+		void IUseSetting.OpenSettings( INIParser parser )
+		{
+
+		}
+
+		void IUseSetting.SaveSettings( INIParser parser )
+		{
 		}
 	}
 }

@@ -11,10 +11,9 @@ namespace TrueRED.Modules
 {
 	public class ReflectorModule : Module, IStreamListener, IUseSetting
 	{
-		IAuthenticatedUser user;
-		public ReflectorModule( IAuthenticatedUser user )
+		public ReflectorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
-			this.user = user;
+
 		}
 
 		void IStreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
@@ -99,21 +98,13 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser parser )
 		{
-			var running = parser.GetValue("Module", "IsRunning");
-
-			if ( !string.IsNullOrEmpty( running ) )
-			{
-				IsRunning = bool.Parse( running );
-			}
-			else
-			{
-				IsRunning = true;
-			}
 		}
 
 		void IUseSetting.SaveSettings( INIParser parser )
 		{
-			parser.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
+			parser.SetValue( "Module", "IsRunning", IsRunning );
+			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
+			parser.SetValue( "Module", "Name", Name );
 		}
 	}
 }

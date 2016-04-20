@@ -12,16 +12,12 @@ namespace TrueRED.Modules
 {
 	public class SchedulerModule : Modules.Module, ITimeTask, IUseSetting
 	{
-		IAuthenticatedUser user;
-		private string StringsetPath;
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
+		private string stringset;
 
-		public SchedulerModule( IAuthenticatedUser user, string stringsetPath )
+		public SchedulerModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
-			this.IsRunning = true;
-			this.user = user;
-			this.StringsetPath = stringsetPath;
-			LoadStringsets( stringsetPath );
+
 		}
 
 		public void LoadStringsets( string stringSet )
@@ -63,21 +59,17 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser parser )
 		{
-			var running = parser.GetValue("Module", "IsRunning");
+			stringset = parser.GetValue("Module", "ReactorStringset");
 
-			if ( !string.IsNullOrEmpty( running ) )
-			{
-				IsRunning = bool.Parse( running );
-			}
-			else
-			{
-				IsRunning = true;
-			}
+			LoadStringsets( stringset );
 		}
 
 		void IUseSetting.SaveSettings( INIParser parser )
 		{
-			parser.SetValue( "Module", "IsRunning", IsRunning.ToString( ) );
+			parser.SetValue( "Module", "IsRunning", IsRunning );
+			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
+			parser.SetValue( "Module", "Name", Name );
+			parser.SetValue( "Module", "ReactorStringset", stringset );
 		}
 	}
 }

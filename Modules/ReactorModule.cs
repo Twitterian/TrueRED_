@@ -15,29 +15,23 @@ namespace TrueRED.Modules
 {
 	public class ReactorModule : Module, IStreamListener, IUseSetting, ITimeTask
 	{
+		string stringset;
 		TimeSet moduleWakeup = null;
 		TimeSet moduleSleep = null;
-		string reactorID;
-		IUser owner = null;
 
 		List<string> reactor_category    = new List<string>();
 		List<string> reactor_input       = new List<string>();
 		List<string> reactor_output      = new List<string>();
 
 		Random _selector = new Random();
-		IAuthenticatedUser user;
 
 		Dictionary<long, TimeSet> ExpireUsers = new Dictionary<long, TimeSet>();
 		int ExpireTime;
 		int ExpireDelay;
 
-		public ReactorModule( IAuthenticatedUser user, IUser owner, string reactorStringset )
+		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner)
 		{
-			this.user = user;
-			reactorID = reactorStringset;
-			LoadStringsets( reactorStringset );
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
-			this.owner = owner;
 		}
 
 		public void LoadStringsets( string stringSet )
@@ -49,7 +43,7 @@ namespace TrueRED.Modules
 				var tags = reactor[i].Split('∥');
 				if ( tags.Length != 3 )
 				{
-					Log.Error( "Reactor.Status", string.Format( "Not correct reactor stringset {0}", reactor[i] ) );
+					Log.Error( "Reactor.Status", string.Format( "Not correct reactor stringset '{0}'", reactor[i] ) );
 					continue;
 				}
 				reactor_category.Add( tags[0] );
@@ -173,21 +167,7 @@ namespace TrueRED.Modules
 			if ( !Verification( ) ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
-
-			// Debug commands.
-			if ( tweet.CreatedBy.Id == owner.Id )
-			{
-				if ( tweet.Text.Contains( "ExpireUsers" ) )
-				{
-					var @out = string.Format("@{0} \n", tweet.CreatedBy.ScreenName);
-					foreach ( var item in ExpireUsers )
-					{
-						@out += string.Format( "{0} : {1}\n", item.Key, item.Value );
-					}
-					Tweet.PublishTweetInReplyTo( @out, tweet.Id );
-				}
-			}
-
+			
 			var cases = new List<int>();
 			for ( int i = 0; i < reactor_category.Count; i++ )
 			{
@@ -309,20 +289,15 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser path )
 		{
-			var running = path.GetValue("Module", "IsRunning");
+			stringset = path.GetValue("Module", "ReactorStringset");
+
 			var expiretime = path.GetValue("Expire", "Time");
 			var expiredelay = path.GetValue("Expire", "Delay");
+
 			var starttime = path.GetValue("TimeLimit", "StartTime");
 			var endtime = path.GetValue("TimeLimit", "EndTime");
-
-			if ( !string.IsNullOrEmpty( running ) )
-			{
-				IsRunning = bool.Parse( running );
-			}
-			else
-			{
-				IsRunning = true;
-			}
+			
+            LoadStringsets( stringset );
 
 			if ( !string.IsNullOrEmpty( expiretime ) )
 			{
@@ -364,8 +339,13 @@ namespace TrueRED.Modules
 		void IUseSetting.SaveSettings( INIParser path )
 		{
 			path.SetValue( "Module", "IsRunning", IsRunning );
+			path.SetValue( "Module", "Type", this.GetType( ).FullName );
+			path.SetValue( "Module", "Name", Name );
+			path.SetValue( "Module", "ReactorStringset", stringset );
+
 			path.SetValue( "Expire", "Time", ExpireTime );
 			path.SetValue( "Expire", "Delay", ExpireDelay );
+
 			path.SetValue( "TimeLimit", "StartTime", moduleWakeup );
 			path.SetValue( "TimeLimit", "EndTime", moduleSleep );
 		}

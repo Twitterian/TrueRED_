@@ -70,51 +70,54 @@ namespace TrueRED
 
 			#region Initialize Modules
 
-			var modules = new Dictionary<string, Module>();
-			modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor" ) );
-			modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor" ) );
-			modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
-			modules.Add( "Reflector", new ReflectorModule( user ) );
-			modules.Add( "Controller", new ControllerModule( user, owner, modules ) );
-			modules.Add( "Weather", new WeatherModule( user ) );
+			var modules = new List<Module>();
+			var module_settings = Directory.GetFiles( "Modules" );
+			foreach ( var item in module_settings )
+			{
+				if(item.ToLower().EndsWith(".ini"))
+				{
+					var parser = new INIParser(item);
+					var module = Module.Create( parser, user, owner);
+					if(module != null) modules.Add( module );
+				}
+			}
+			
+			//modules.Add( "YoruHello", new ReactorModule( user, owner, "YoruHelloReactor" ) );
+			//modules.Add( "AsaHello", new ReactorModule( user, owner, "AsaHelloReactor" ) );
+			//modules.Add( "TimeTweet", new SchedulerModule( user, "TimeTweet" ) );
+			//modules.Add( "Reflector", new ReflectorModule( user ) );
+			//modules.Add( "Controller", new ControllerModule( user, owner, modules ) );
+			//modules.Add( "Weather", new WeatherModule( user ) );
 
 			#endregion
 
 			foreach ( var item in modules )
 			{
-				if ( item.Value is ITimeTask )
+				if ( item is ITimeTask )
 				{
-					var module = (ITimeTask)item.Value;
+					var module = (ITimeTask)item;
 					Task.Factory.StartNew( ( ) => module.Run( ) );
-				}
-
-				if ( item.Value is IUseSetting )
-				{
-					var module = (IUseSetting)item.Value;
-					var parser = new INIParser(Path.Combine( "Settings", item.Key + ".ini" ));
-					module.OpenSettings( parser );
 				}
 			}
 
-			CreateStream( modules.Values.OfType<IStreamListener>( ) );
+			CreateStream( modules.OfType<IStreamListener>( ) );
 
 			new Display.AppConsole( modules ).ShowDialog( );
 
 			foreach ( var item in modules )
 			{
-				if ( item.Value is IUseSetting )
-				{
-					var module = (IUseSetting)item.Value;
-					var parser = new INIParser(Path.Combine( "Settings", item.Key + ".ini" ));
-					module.SaveSettings( parser );
-					parser.Save( );
-				}
+				var module = (IUseSetting)item;
+				var parser = new INIParser(Path.Combine( "Modules", item.Name + ".ini" ));
+				module.SaveSettings( parser );
+				parser.Save( );
 			}
-		}
+
+			setting.Save( );
+        }
 
 		private static void InitDirectories( )
 		{
-			var settings = Path.Combine( Directory.GetCurrentDirectory( ), "Settings" ) ;
+			var settings = Path.Combine( Directory.GetCurrentDirectory( ), "Modules" ) ;
 			if ( !Directory.Exists( settings ) )
 			{
 				Directory.CreateDirectory( settings );
@@ -127,7 +130,7 @@ namespace TrueRED
 			}
 		}
 
-		static void CreateStream( IEnumerable<IStreamListener> modules )
+		private static void CreateStream( IEnumerable<IStreamListener> modules )
 		{
 			if ( modules.Count( ) == 0 ) return;
 
@@ -159,5 +162,6 @@ namespace TrueRED
 			userStream.StartStreamAsync( );
 			Log.Http( "Program", "Stream is running now" );
 		}
+		
 	}
 }

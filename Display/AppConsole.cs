@@ -20,7 +20,7 @@ namespace TrueRED.Display
 		List<ModuleObject> Modules = new List<ModuleObject>();
 		public DataSet ds { get; private set; }
 
-		public AppConsole( Dictionary<string, Module> modules )
+		public AppConsole( List<Module> modules )
 		{
 			InitializeComponent( );
 			
@@ -29,11 +29,10 @@ namespace TrueRED.Display
 			materialSkinManager.AddFormToManage( this );
 			materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
 			materialSkinManager.ColorScheme = new ColorScheme( Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE );
-
-			var keys = new List<string>( modules.Keys );
+			
 			for ( int i = 0; i < modules.Count; i++ )
 			{
-				Modules.Add( new ModuleObject( i, keys[i], modules[keys[i]] ) );
+				Modules.Add( new ModuleObject( i, modules[i].Name, modules[i] ) );
 			}
 
 			// 바인딩 안 됨.

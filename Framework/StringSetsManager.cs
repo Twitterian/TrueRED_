@@ -53,11 +53,11 @@ namespace TrueRED.Framework
 
 		public static string[] GetStrings( string StringSet )
 		{
-			if ( _list.ContainsKey( StringSet ) )
+			try
 			{
 				return _list[StringSet].ToArray( );
 			}
-			else
+			catch
 			{
 				Log.Error( "GetStrings", string.Format( "Coudn't find StringSet [{0}]", StringSet ) );
 				return new string[0];

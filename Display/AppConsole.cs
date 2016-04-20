@@ -87,6 +87,16 @@ namespace TrueRED.Display
 			ConsoleTool.ConsoleVisible = !ConsoleTool.ConsoleVisible;
 			button_getModule.Enabled = ConsoleTool.ConsoleVisible;
         }
+
+		private void button_addModule_Click( object sender, EventArgs e )
+		{
+
+		}
+
+		private void button_rmvModule_Click( object sender, EventArgs e )
+		{
+
+		}
 	}
 
 	public class ModuleObject

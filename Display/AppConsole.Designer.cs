@@ -115,6 +115,7 @@ namespace TrueRED.Display
 			this.button_addModule.TabIndex = 2;
 			this.button_addModule.Text = "Add";
 			this.button_addModule.UseVisualStyleBackColor = true;
+			this.button_addModule.Click += new System.EventHandler(this.button_addModule_Click);
 			// 
 			// label_module
 			// 
@@ -144,6 +145,7 @@ namespace TrueRED.Display
 			this.button_rmvModule.TabIndex = 2;
 			this.button_rmvModule.Text = "Remove";
 			this.button_rmvModule.UseVisualStyleBackColor = true;
+			this.button_rmvModule.Click += new System.EventHandler(this.button_rmvModule_Click);
 			// 
 			// AppConsole
 			// 

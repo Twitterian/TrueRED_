@@ -7,19 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MaterialSkin;
+using MaterialSkin.Controls;
 using TrueRED.Framework;
 using TrueRED.Modules;
 
 namespace TrueRED.Display
 {
-	public partial class AppConsole : Form
+	public partial class AppConsole : MaterialForm
 	{
+		private readonly MaterialSkinManager materialSkinManager;
 		List<ModuleObject> Modules = new List<ModuleObject>();
 		public DataSet ds { get; private set; }
 
 		public AppConsole( Dictionary<string, Module> modules )
 		{
 			InitializeComponent( );
+			
+			// Initialize MaterialSkinManager
+			materialSkinManager = MaterialSkinManager.Instance;
+			materialSkinManager.AddFormToManage( this );
+			materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
+			materialSkinManager.ColorScheme = new ColorScheme( Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE );
+
 			var keys = new List<string>( modules.Keys );
 			for ( int i = 0; i < modules.Count; i++ )
 			{

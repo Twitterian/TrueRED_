@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hammock.Streaming;
 using TrueRED.Framework;
 using TrueRED.Modules;
 using Tweetinvi;

@@ -126,6 +126,7 @@
     <Compile Include="Modules\ReflectorModule.cs" />
     <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Modules\ReactorModule.cs" />
+    <Compile Include="Modules\RegularTweet.cs" />
     <Compile Include="Modules\SchedulerModule.cs" />
     <Compile Include="Modules\ControllerModule.cs" />
     <Compile Include="Modules\WeatherModule.cs" />

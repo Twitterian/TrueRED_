@@ -32,7 +32,7 @@ namespace TrueRED.Modules
 		int ExpireTime;
 		int ExpireDelay;
 
-		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner)
+		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 		}
@@ -132,20 +132,27 @@ namespace TrueRED.Modules
 
 			if ( status.Text.Replace( " ", "" ).Replace( "\n", "" ).Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
 			{
+				var mention_regex= new Regex(string.Format("@[a-zA-Z0-9_]+"));
+				var mention_names = mention_regex.Matches( status.Text ).Cast<Match>().Select(m=>m.Value).ToArray();
+
 				switch ( category )
 				{
 					case "All":
-						Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-						return true;
+						if ( mention_names.Count() == 0 || mention_names.Contains( string.Format( "@{0}", user.ScreenName ) ) )
+						{
+							Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+							return true;
+						}
+						break;
 					case "Mention":
-						if ( status.InReplyToUserId == user.Id )
+						if ( mention_names.Contains( string.Format( "@{0}", user.ScreenName ) ))
 						{
 							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							return true;
 						}
 						break;
 					case "Public":
-						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
+						if ( mention_names.Count( ) == 0 )
 						{
 							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							return true;
@@ -170,7 +177,7 @@ namespace TrueRED.Modules
 			if ( !Verification( ) ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
-			
+
 			var cases = new List<int>();
 			for ( int i = 0; i < reactor_category.Count; i++ )
 			{
@@ -210,7 +217,7 @@ namespace TrueRED.Modules
 					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
 					Log.Print( "Reactor", string.Format( "Send tweet [{0}]", result.Text ) );
 
-					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
+					if ( ExpireTime != 0 ) ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
 				}
 			}
 		}
@@ -292,15 +299,15 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser path )
 		{
-			stringset = path.GetValue("Module", "ReactorStringset");
+			stringset = path.GetValue( "Module", "ReactorStringset" );
 
 			var expiretime = path.GetValue("Expire", "Time");
 			var expiredelay = path.GetValue("Expire", "Delay");
 
 			var starttime = path.GetValue("TimeLimit", "StartTime");
 			var endtime = path.GetValue("TimeLimit", "EndTime");
-			
-            LoadStringsets( stringset );
+
+			LoadStringsets( stringset );
 
 			if ( !string.IsNullOrEmpty( expiretime ) )
 			{

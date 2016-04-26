@@ -112,7 +112,9 @@ namespace TrueRED.Modules
 
 		}
 
-		private bool IsMatch( string category, string input, ITweet status )
+		enum TweetMatchResult { Match, NotMatch, Expire}
+
+		private TweetMatchResult IsMatch( string category, string input, ITweet status )
 		{
 			lock ( ExpireUsers )
 			{
@@ -121,7 +123,8 @@ namespace TrueRED.Modules
 					var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
 					if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
 					{
-						return false;
+						Log.Print( "ReactorRejected", string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
+						return TweetMatchResult.Expire;
 					}
 					else
 					{
@@ -136,24 +139,24 @@ namespace TrueRED.Modules
 				{
 					case "All":
 						Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-						return true;
+						return TweetMatchResult.Match;
 					case "Mention":
 						if ( status.InReplyToUserId == user.Id )
 						{
 							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-							return true;
+							return TweetMatchResult.Match;
 						}
 						break;
 					case "Public":
 						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
 						{
 							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-							return true;
+							return TweetMatchResult.Match;
 						}
 						break;
 				}
 			}
-			return false;
+			return TweetMatchResult.NotMatch;
 		}
 
 		public bool Verification( )
@@ -182,18 +185,22 @@ namespace TrueRED.Modules
 					var inputset = StringSetsManager.GetStrings(input.Substring(2, input.Length-4));
 					for ( int j = 0; j < inputset.Length; j++ )
 					{
-						if ( IsMatch( category, inputset[j], tweet ) )
+						var matchResult = IsMatch( category, inputset[j], tweet );
+						if ( matchResult == TweetMatchResult.Match )
 						{
 							cases.Add( i );
 						}
+						else if ( matchResult == TweetMatchResult.Expire ) break;
 					}
 				}
 				else
 				{
-					if ( IsMatch( category, input, tweet ) )
+					var matchResult = IsMatch( category, input, tweet );
+					if ( matchResult == TweetMatchResult.Match )
 					{
 						cases.Add( i );
 					}
+					else if ( matchResult == TweetMatchResult.Expire ) break;
 				}
 			}
 			if ( cases.Count > 0 )

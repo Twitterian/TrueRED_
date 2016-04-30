@@ -126,7 +126,7 @@ namespace TrueRED.Modules
 			}
 		}
 
-		// To-do : 모듈이 많으면 트윗 되지 않을 것임. 나눠서 트윗하는 함수를 만들어야함
+		// ToDO: 모듈이 많으면 트윗 되지 않을 것임. 나눠서 트윗하는 함수를 만들어야함
 		private void GetModuleState( ITweet tweet )
 		{
 			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );

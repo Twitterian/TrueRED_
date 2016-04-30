@@ -11,6 +11,7 @@ using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
 
+// TODO: Expire기간중에 트윗하면 다른 모듈 참조하도록 설정하기?
 namespace TrueRED.Modules
 {
 	public class ReactorModule : Module, IStreamListener, IUseSetting, ITimeTask
@@ -32,7 +33,7 @@ namespace TrueRED.Modules
 		int ExpireTime;
 		int ExpireDelay;
 
-		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner)
+		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 		}
@@ -112,26 +113,12 @@ namespace TrueRED.Modules
 
 		}
 
-		enum TweetMatchResult { Match, NotMatch, Expire}
+		enum TweetMatchResult { Match, NotMatch, Expire }
 
 		private TweetMatchResult IsMatch( string category, string input, ITweet status )
 		{
-			lock ( ExpireUsers )
-			{
-				if ( ExpireUsers.ContainsKey( status.CreatedBy.Id ) )
-				{
-					var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
-					if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
-					{
-						Log.Print( "ReactorRejected", string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
-						return TweetMatchResult.Expire;
-					}
-					else
-					{
-						ExpireUsers.Remove( status.CreatedBy.Id );
-					}
-				}
-			}
+
+			TweetMatchResult state = TweetMatchResult.NotMatch;
 
 			if ( status.Text.Replace( " ", "" ).Replace( "\n", "" ).Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
 			{
@@ -139,24 +126,43 @@ namespace TrueRED.Modules
 				{
 					case "All":
 						Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-						return TweetMatchResult.Match;
+						state = TweetMatchResult.Match;
+						break;
 					case "Mention":
 						if ( status.InReplyToUserId == user.Id )
 						{
 							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-							return TweetMatchResult.Match;
+							state = TweetMatchResult.Match;
 						}
 						break;
 					case "Public":
 						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
 						{
 							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
-							return TweetMatchResult.Match;
+							state = TweetMatchResult.Match;
 						}
 						break;
 				}
+
+
+				lock ( ExpireUsers )
+				{
+					if ( ExpireUsers.ContainsKey( status.CreatedBy.Id ) )
+					{
+						var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
+						if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
+						{
+							Log.Print( "ReactorRejected", string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
+							state = TweetMatchResult.Expire;
+						}
+						else
+						{
+							ExpireUsers.Remove( status.CreatedBy.Id );
+						}
+					}
+				}
 			}
-			return TweetMatchResult.NotMatch;
+			return state;
 		}
 
 		public bool Verification( )
@@ -173,7 +179,7 @@ namespace TrueRED.Modules
 			if ( !Verification( ) ) return;
 			if ( tweet.CreatedBy.Id == user.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
-			
+
 			var cases = new List<int>();
 			for ( int i = 0; i < reactor_category.Count; i++ )
 			{
@@ -183,6 +189,7 @@ namespace TrueRED.Modules
 				if ( input.StartsWith( "__" ) && input.EndsWith( "__" ) )
 				{
 					var inputset = StringSetsManager.GetStrings(input.Substring(2, input.Length-4));
+					var loopbreak = false;
 					for ( int j = 0; j < inputset.Length; j++ )
 					{
 						var matchResult = IsMatch( category, inputset[j], tweet );
@@ -190,8 +197,13 @@ namespace TrueRED.Modules
 						{
 							cases.Add( i );
 						}
-						else if ( matchResult == TweetMatchResult.Expire ) break;
+						else if ( matchResult == TweetMatchResult.Expire )
+						{
+							loopbreak = true;
+							break;
+						}
 					}
+					if ( loopbreak ) break;
 				}
 				else
 				{
@@ -299,15 +311,15 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser path )
 		{
-			stringset = path.GetValue("Module", "ReactorStringset");
+			stringset = path.GetValue( "Module", "ReactorStringset" );
 
 			var expiretime = path.GetValue("Expire", "Time");
 			var expiredelay = path.GetValue("Expire", "Delay");
 
 			var starttime = path.GetValue("TimeLimit", "StartTime");
 			var endtime = path.GetValue("TimeLimit", "EndTime");
-			
-            LoadStringsets( stringset );
+
+			LoadStringsets( stringset );
 
 			if ( !string.IsNullOrEmpty( expiretime ) )
 			{

@@ -104,16 +104,7 @@
     <Compile Include="Display\MakeModule.Designer.cs">
       <DependentUpon>MakeModule.cs</DependentUpon>
     </Compile>
-    <Compile Include="Display\ModuleFaces\EditReactor.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Display\ModuleFaces\EditReflector.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Display\ModuleFaces\EditScheduler.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Display\ModuleFaces\EditWeather.cs">
+    <Compile Include="Display\ModuleFace.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Framework\Console.cs" />

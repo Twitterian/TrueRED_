@@ -24,20 +24,42 @@ namespace TrueRED.Display
 			materialSkinManager.AddFormToManage( this );
 			materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
 			materialSkinManager.ColorScheme = new ColorScheme( Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE );
-
+			
 			LoadModuleTypes( );
+		}
+
+		private void ModuleFace_DoneButton_Click( object sender, EventArgs e )
+		{
+			Framework.Log.Print( "Callback", "Hello" );
 		}
 
 		void LoadModuleTypes( )
 		{
-			// TODO: Module 클래스 상속받은 친구들 알아서 불러오도록
-			var modules = new Tuple<Type, TabPage>[]
+			var types = typeof(Modules.Module).Assembly.GetTypes().Where(t => t.BaseType == typeof(Modules.Module)).ToList();
+			var modules = new Tuple<Type, TabPage>[types.Count()];
+
+			var categories = new List<ModuleFaceCategory>( );
+			var category1 = new ModuleFaceCategory("Module" );
+			var category2 = new ModuleFaceCategory( "SecondDog" );
+
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.String, "첫 번째 문자열" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "첫 번째 숫자" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "두 번째 숫자" );
+
+			categories.Add( category1 );
+			categories.Add( category2 );
+
+			for ( int i = 0; i < types.Count(); i++ )
 			{
-				new Tuple<Type, TabPage>(typeof(Modules.ReactorModule), new ModuleFaces.EditReactor()),
-				new Tuple<Type, TabPage>(typeof(Modules.ReflectorModule),new ModuleFaces.EditReflector()),
-				new Tuple<Type, TabPage>(typeof(Modules.SchedulerModule),new ModuleFaces.EditScheduler()),
-				new Tuple<Type, TabPage>(typeof(Modules.WeatherModule),new ModuleFaces.EditWeather())
-			};
+				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
+					types[i].Name,
+					categories,
+					ModuleFace_DoneButton_Click
+				) );
+			}
 
 			for ( int i = 0; i < modules.Length; i++ )
 			{
@@ -86,5 +108,7 @@ namespace TrueRED.Display
 			button.UseVisualStyleBackColor = true;
 			return button;
 		}
+
+		
 	}
 }

@@ -31,7 +31,9 @@ namespace TrueRED.Display
 			button.Text = "Done";
 			button.Location = new Point( this.Size.Width - button.Size.Width - 10, this.Size.Height - button.Size.Height );
 			button.Click += donebuttonClickLiestner;
+			button.Anchor = ( AnchorStyles.Bottom | AnchorStyles.Right );
 			this.Controls.Add( button );
+
 		}
 
 		private void InitializeComponent( string moduleName )

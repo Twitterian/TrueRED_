@@ -15,6 +15,17 @@ namespace TrueRED.Modules
 
 		public static string ModuleName { get; protected set; } = "Scheduler";
 		public static string ModuleDescription { get; protected set; } = "Tweet on setted time";
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			face.Add( category1 );
+
+			return face;
+		}
 
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;

@@ -14,6 +14,12 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "Controller";
 		public static string ModuleDescription { get; protected set; } = "Activaste / Deactivate modules with mention";
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			return face;
+		}
 
 		Dictionary<string, Module> modules;
 

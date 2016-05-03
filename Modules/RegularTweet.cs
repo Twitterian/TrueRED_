@@ -14,6 +14,22 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "RegularTweet";
 		public static string ModuleDescription { get; protected set; } = "Random tweet";
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			face.Add( category1 );
+
+			var category2 = new Display.ModuleFaceCategory("Cycle" );
+			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Duration" );
+			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Variation" );
+			face.Add( category2 );
+
+			return face;
+		}
 
 		Random _selector = new Random();
 

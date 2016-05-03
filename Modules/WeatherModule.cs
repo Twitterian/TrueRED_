@@ -14,6 +14,16 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "Weather";
 		public static string ModuleDescription { get; protected set; } = "Tweet current weather";
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			face.Add( category1 );
+
+			return face;
+		}
 
 		public WeatherModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{

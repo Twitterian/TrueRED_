@@ -13,6 +13,12 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "Reflector";
 		public static string ModuleDescription { get; protected set; } = "Auto mutal-follow";
+		public static List<Display.ModuleFaceCategory> GetModuleFace()
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+			
+			return face;
+		}
 
 		public ReflectorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{

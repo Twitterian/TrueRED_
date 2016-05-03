@@ -18,6 +18,27 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "Reactor";
 		public static string ModuleDescription { get; protected set; } = "Reaction timeline";
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			face.Add( category1 );
+
+			var category2 = new Display.ModuleFaceCategory("Expire" );
+			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Time" );
+			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Delay" );
+			face.Add( category2 );
+
+			var category3 = new Display.ModuleFaceCategory("TimeLimit" );
+			category3.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "StartTime" );
+			category3.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "EndTime" );
+			face.Add( category3 );
+
+			return face;
+		}
 
 		string stringset;
 		TimeSet moduleWakeup = null;

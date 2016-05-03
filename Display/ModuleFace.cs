@@ -16,7 +16,7 @@ namespace TrueRED.Display
 	{
 		public List<Control> InputFields { get; private set; } = new List<Control>( );
 
-		public ModuleFace( Type type, IEnumerable<ModuleFaceCategory> moduleFaceInfo, Action<Type> doneCallback )
+		public ModuleFace( Type type, IEnumerable<ModuleFaceCategory> moduleFaceInfo, Action<Type, object[]> doneCallback )
 		{
 			SuspendLayout( );
 			InitializeComponent( type.Name );
@@ -25,14 +25,27 @@ namespace TrueRED.Display
 			ResumeLayout( );
 		}
 
-		private void AttachDoneButton( Type type, Action<Type> donebuttonClickLiestner )
+		private void AttachDoneButton( Type type, Action<Type, object[]> donebuttonClickLiestner )
 		{
 			var button = new MaterialFlatButton();
 			button.Text = "Done";
 			button.Location = new Point( this.Size.Width - button.Size.Width - 10, this.Size.Height - button.Size.Height );
 			button.Click += delegate
 			{
-				donebuttonClickLiestner( type );
+				var @params = new object[InputFields.Count];
+				for ( int i = 0; i < InputFields.Count; i++ )
+				{
+					var item = InputFields[i];
+					if ( item is MaterialSingleLineTextField )
+					{
+						@params[i] = ( ( MaterialSingleLineTextField ) item ).Text;
+					}
+					else if ( item is NumericUpDown )
+					{
+						@params[i] = ( int ) ( ( ( NumericUpDown ) item ).Value );
+					}
+				}
+				donebuttonClickLiestner( type, @params );
 			};
 			button.Anchor = ( AnchorStyles.Bottom | AnchorStyles.Right );
 			this.Controls.Add( button );
@@ -61,6 +74,7 @@ namespace TrueRED.Display
 
 			foreach ( var category in moduleFaceInfo )
 			{
+				// TODO: 탭 인댄트 정리
 				var title = new MaterialLabel( );
 				title.Text = category.CategoryName;
 				title.Location = new Point( LABEL_X_POSITION, Current_Y_Position * CONTROL_HEIGHT + PADDING );
@@ -82,6 +96,8 @@ namespace TrueRED.Display
 							break;
 						case ModuleFaceCategory.ModuleFaceTypes.Int:
 							iteminput = new NumericUpDown( );
+							( ( NumericUpDown ) iteminput ).Maximum = decimal.MaxValue;
+							( ( NumericUpDown ) iteminput ).Minimum = decimal.MinValue;
 							break;
 					}
 					iteminput.Location = new Point( INPUT_X_POSITION, Current_Y_Position * CONTROL_HEIGHT + PADDING );

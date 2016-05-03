@@ -34,7 +34,7 @@ namespace TrueRED.Framework
 			}
 			else
 			{
-				Log.Error( "INIParser", string.Format( "[{0}] is not correct directory. new inidata generated.", iniPath ) );
+				Log.Debug( "INIParser", string.Format( "[{0}] is not correct directory. new INI file generated.", iniPath ) );
 				data = new IniData( );
 			}
 		}

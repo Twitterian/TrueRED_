@@ -26,15 +26,18 @@ namespace TrueRED.Modules
 
 			return face;
 		}
-		public static SchedulerModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		public static SchedulerModule CreateModule( string moduleName, string stringset )
 		{
-			return null;
+			var module =new SchedulerModule(moduleName);
+			module.stringset = stringset;
+			module.LoadStringsets( stringset );
+			return module;
 		}
 
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;
 
-		public SchedulerModule( string name) : base( name)
+		public SchedulerModule( string name ) : base( name )
 		{
 
 		}
@@ -78,7 +81,7 @@ namespace TrueRED.Modules
 
 		void IUseSetting.OpenSettings( INIParser parser )
 		{
-			stringset = parser.GetValue("Module", "ReactorStringset");
+			stringset = parser.GetValue( "Module", "ReactorStringset" );
 
 			LoadStringsets( stringset );
 		}

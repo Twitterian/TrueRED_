@@ -39,9 +39,16 @@ namespace TrueRED.Modules
 
 			return face;
 		}
-		public static ReactorModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		public static ReactorModule CreateModule( string moduleName, string StringSet, int Time, int Delay, string StartTime, string EndTime )
 		{
-			return new ReactorModule( "테스트1" );
+			var module = new ReactorModule( moduleName );
+			module.stringset = StringSet;
+			module.LoadStringsets( StringSet );
+			module.ExpireTime = Time;
+			module.ExpireDelay = Delay;
+			module.moduleWakeup = TimeSet.FromString( StartTime );
+			module.moduleSleep = TimeSet.FromString( EndTime );
+			return module;
 		}
 
 		string stringset;

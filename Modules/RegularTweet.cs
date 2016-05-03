@@ -30,10 +30,18 @@ namespace TrueRED.Modules
 
 			return face;
 		}
-		public static RegularTweet CreateModule( List<System.Windows.Forms.Control> InputForms )
+		public static RegularTweet CreateModule( string moduleName, string stringsetName, int duration, int variation )
 		{
-			return null;
+			var module = new RegularTweet( moduleName );
+			module.stringsetname = stringsetName;
+			module.stringset = StringSetsManager.GetStrings( module.stringsetname );
+			module.duration = duration;
+			module.variation = variation;
+			module.IsRunning = false;
+			return module;
 		}
+
+
 
 		Random _selector = new Random();
 
@@ -42,11 +50,11 @@ namespace TrueRED.Modules
 		int duration;
 		int variation;
 
-		public RegularTweet( string name ) : base( name)
+		public RegularTweet( string name ) : base( name )
 		{
 
 		}
-		
+
 		void ITimeTask.Run( )
 		{
 			while ( true )
@@ -58,7 +66,7 @@ namespace TrueRED.Modules
 					if ( result != null ) Log.Print( "Regular", string.Format( "Tweeted [{0}]", result.Text ) );
 					else continue;
 				}
-				Thread.Sleep( duration - ( ( variation / 2 ) + ( _selector.Next( variation ) ) ));
+				Thread.Sleep( duration - ( ( variation / 2 ) + ( _selector.Next( variation ) ) ) );
 			}
 		}
 
@@ -95,7 +103,7 @@ namespace TrueRED.Modules
 			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
 			parser.SetValue( "Module", "Name", Name );
 			parser.SetValue( "Module", "ReactorStringset", stringsetname );
-			
+
 			parser.SetValue( "Cycle", "Duration", duration );
 			parser.SetValue( "Cycle", "Variation", variation );
 		}

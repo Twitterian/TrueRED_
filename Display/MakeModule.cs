@@ -21,7 +21,6 @@ namespace TrueRED.Display
 		{
 			InitializeComponent( );
 
-			// Initialize MaterialSkinManager
 			materialSkinManager = MaterialSkinManager.Instance;
 			materialSkinManager.AddFormToManage( this );
 			materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
@@ -40,18 +39,23 @@ namespace TrueRED.Display
 				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
 					types[i],
 					( IEnumerable<ModuleFaceCategory> ) types[i].GetMethod( "GetModuleFace" ).Invoke( null, null ),
-					delegate ( Type t )
+					delegate ( Type t, object[] @params )
 					{
-						// TODO: 전역 모듈 관리 클래스 연동
-						Modules.Module instance = (Modules.Module)t.GetMethod("CreateModule").Invoke( null, new object[] { null } );
-						if ( instance != null ) Framework.Log.Print( "ModuleMaked", instance.ToString( ) );
+						Modules.Module instance = (Modules.Module)t.GetMethod("CreateModule").Invoke( null, @params);
+						if ( instance != null )
+						{
+							Framework.Log.Print( "ModuleMaked", instance.ToString( ) );
+							Framework.Globals.Instance.Modules.Add( instance );
+						}
+						this.Close( );
 					}
 				) );
 			}
 
+			tabpage_modules.SuspendLayout( );
+			AttachDoneButton( );
 			for ( int i = 0; i < modules.Length; i++ )
 			{
-				tabpage_modules.SuspendLayout( );
 				var radiobutton = NewModuleType(i, modules[i].Item1);
 				if ( radiobutton == null ) continue;
 				int index = i;
@@ -65,16 +69,25 @@ namespace TrueRED.Display
 					materialSkinManager.ColorScheme = new ColorScheme( Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE );
 				};
 				tabpage_modules.Controls.Add( radiobutton );
-				tabpage_modules.ResumeLayout( );
 			}
 			if ( tabpage_modules.Controls.Count > 0 )
 			{
 				tabpage_modules.Controls[0].Select( );
 			}
-			else
+			tabpage_modules.ResumeLayout( );
+		}
+
+		private void AttachDoneButton( )
+		{
+			var button = new MaterialFlatButton();
+			button.Text = "Done";
+			button.Location = new Point( tabpage_modules.Size.Width - button.Size.Width - 10, tabpage_modules.Size.Height - button.Size.Height );
+			button.Click += delegate
 			{
-				// TODO: 모듈 없음 에러
-			}
+				tabControl.SelectTab( 1 );
+			};
+			button.Anchor = ( AnchorStyles.Bottom | AnchorStyles.Right );
+			tabpage_modules.Controls.Add( button );
 		}
 
 		MaterialRadioButton NewModuleType( int i, Type module )

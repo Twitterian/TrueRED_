@@ -9,6 +9,9 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
+	// TODO: 모듈의 싱글 인스턴스 제한 옵션 추가
+	// 설정의 의무화
+
 	/// <summary>
 	/// IStreamListener 인터페이스를 통해 스트림 이벤트 동작을 정의할 수 있습니다.
 	/// </summary>
@@ -64,7 +67,7 @@ namespace TrueRED.Modules
 		void Run( );
 	}
 
-	public class Module
+	public class Module : IUseSetting
 	{
 		private bool _IsRunning;
 		public bool IsRunning
@@ -77,7 +80,7 @@ namespace TrueRED.Modules
 				{
 					foreach ( var item in ModuleStateChangeListener )
 					{
-						item.Value( item.Key, _IsRunning );
+						item( _IsRunning );
 					}
 				}
 			}
@@ -86,8 +89,8 @@ namespace TrueRED.Modules
 		public string Name { get; private set; }
 		protected IAuthenticatedUser User { get; private set; }
 
-		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
-		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener
+		private List<Action< bool>> _ModuleStateChangeListener = new List<Action< bool>>();
+		public List<Action<bool>> ModuleStateChangeListener
 		{
 			get
 			{
@@ -163,5 +166,14 @@ namespace TrueRED.Modules
 			parser.SetValue( "Module", "Name", Name );
 		}
 
+		void IUseSetting.OpenSettings( INIParser parser )
+		{
+			throw new NotImplementedException( );
+		}
+
+		void IUseSetting.SaveSettings( INIParser parser )
+		{
+			throw new NotImplementedException( );
+		}
 	}
 }

@@ -8,6 +8,7 @@ using TrueRED.Framework;
 using TrueRED.Modules;
 using Tweetinvi;
 using Tweetinvi.Core.Interfaces;
+using Tweetinvi.Core.Interfaces.Streaminvi;
 
 namespace TrueRED
 {
@@ -47,7 +48,7 @@ namespace TrueRED
 			StringSetsManager.LoadStringSets( "Stringsets" );
 
 			var setting = new INIParser( "Globals.ini" );
-			var AuthData = "Authenticate";
+			var AuthData = "Authenticate2";
 			string consumerKey = setting.GetValue( AuthData, "ConsumerKey" );
 			string consumerSecret = setting.GetValue( AuthData, "CconsumerSecret" );
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );
@@ -55,17 +56,6 @@ namespace TrueRED
 			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
 			var user = Globals.Instance.User;
 			Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
-
-			long ownerID = 0;
-			try
-			{
-				ownerID = long.Parse( setting.GetValue( "AppInfo", "OwnerID" ) );
-			}
-			catch ( FormatException e )
-			{
-				ownerID = 0;
-			}
-			var owner = User.GetUserFromId( ownerID );
 			#endregion
 
 			InitDirectories( );
@@ -87,16 +77,18 @@ namespace TrueRED
 
 			foreach ( var item in Globals.Instance.Modules )
 			{
-				if ( item is ITimeTask )
-				{
-					var module = (ITimeTask)item;
-					Task.Factory.StartNew( ( ) => module.Run( ) );
-				}
+				OnModuleAdd_StartTimeTask( item );
 			}
+			var stream = CreateStream( Globals.Instance.Modules );
 
-			CreateStream( Globals.Instance.Modules.OfType<IStreamListener>( ) );
 
-			new Display.AppConsole( Globals.Instance.Modules ).ShowDialog( );
+			Globals.Instance.Modules.OnModuleAttachLiestner.Add( delegate ( Module module )
+			{
+				OnModuleAdd_StartTimeTask( module );
+				OnModuleAdd_AttachStream( stream, module );
+			} );
+
+			new Display.AppConsole( ).ShowDialog( );
 
 			foreach ( var item in Globals.Instance.Modules )
 			{
@@ -107,6 +99,41 @@ namespace TrueRED
 			}
 
 			setting.Save( );
+
+			Console.WriteLine( "종료하시려면 아무 키나 누르세요." );
+			Console.Read( );
+		}
+
+		private static void OnModuleAdd_StartTimeTask( Module module )
+		{
+			if ( module is ITimeTask )
+			{
+				var timetask = (ITimeTask)module;
+				Task.Factory.StartNew( ( ) => timetask.Run( ) );
+			}
+		}
+		private static void OnModuleAdd_AttachStream( IUserStream userStream, Module module)
+		{
+			if( module is IStreamListener)
+			{
+				var streamlistener = (IStreamListener)module;
+				userStream.TweetCreatedByAnyone += streamlistener.TweetCreateByAnyone;
+				userStream.MessageSent += streamlistener.MessageSent;
+				userStream.MessageReceived += streamlistener.MessageReceived;
+				userStream.TweetFavouritedByAnyone += streamlistener.TweetFavouritedByAnyone;
+				userStream.TweetUnFavouritedByAnyone += streamlistener.TweetUnFavouritedByAnyone;
+				userStream.ListCreated += streamlistener.ListCreated;
+				userStream.ListUpdated += streamlistener.ListUpdated;
+				userStream.ListDestroyed += streamlistener.ListDestroyed;
+				userStream.BlockedUser += streamlistener.BlockedUser;
+				userStream.UnBlockedUser += streamlistener.UnBlockedUser;
+				userStream.FollowedUser += streamlistener.FollowedUser;
+				userStream.FollowedByUser += streamlistener.FollowedByUser;
+				userStream.UnFollowedUser += streamlistener.UnFollowedUser;
+				userStream.AuthenticatedUserProfileUpdated += streamlistener.AuthenticatedUserProfileUpdated;
+				userStream.FriendIdsReceived += streamlistener.FriendIdsReceived;
+				userStream.AccessRevoked += streamlistener.AccessRevoked;
+			}
 		}
 
 		static void InitDirectories( )
@@ -124,29 +151,14 @@ namespace TrueRED
 			}
 		}
 
-		static void CreateStream( IEnumerable<IStreamListener> modules )
+		static IUserStream CreateStream( IEnumerable<Module> modules )
 		{
-			if ( modules.Count( ) == 0 ) return;
+			if ( modules.Count( ) == 0 ) return null;
 
 			var userStream = Tweetinvi.Stream.CreateUserStream();
-			foreach ( IStreamListener module in modules )
+			foreach ( var module in modules )
 			{
-				userStream.TweetCreatedByAnyone += module.TweetCreateByAnyone;
-				userStream.MessageSent += module.MessageSent;
-				userStream.MessageReceived += module.MessageReceived;
-				userStream.TweetFavouritedByAnyone += module.TweetFavouritedByAnyone;
-				userStream.TweetUnFavouritedByAnyone += module.TweetUnFavouritedByAnyone;
-				userStream.ListCreated += module.ListCreated;
-				userStream.ListUpdated += module.ListUpdated;
-				userStream.ListDestroyed += module.ListDestroyed;
-				userStream.BlockedUser += module.BlockedUser;
-				userStream.UnBlockedUser += module.UnBlockedUser;
-				userStream.FollowedUser += module.FollowedUser;
-				userStream.FollowedByUser += module.FollowedByUser;
-				userStream.UnFollowedUser += module.UnFollowedUser;
-				userStream.AuthenticatedUserProfileUpdated += module.AuthenticatedUserProfileUpdated;
-				userStream.FriendIdsReceived += module.FriendIdsReceived;
-				userStream.AccessRevoked += module.AccessRevoked;
+				OnModuleAdd_AttachStream( userStream, module );
 			}
 			userStream.StreamStopped += delegate
 			{
@@ -155,7 +167,9 @@ namespace TrueRED
 			};
 			userStream.StartStreamAsync( );
 			Log.Http( "Program", "Stream is running now" );
+			return userStream;
 		}
+		
 
 
 		#region Test Modules

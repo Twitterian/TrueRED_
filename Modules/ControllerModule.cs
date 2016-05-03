@@ -18,9 +18,13 @@ namespace TrueRED.Modules
 		{
 			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			face.Add( category1 );
+
 			return face;
 		}
-		public static ControllerModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		public static ControllerModule CreateModule( string moduleName )
 		{
 			return new ControllerModule( ModuleName );
 		}
@@ -176,7 +180,7 @@ namespace TrueRED.Modules
 		{
 			module.IsRunning = true;
 			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
-			Log.Debug( "Controller", module.Name+ " Module Activated" );
+			Log.Debug( "Controller", module.Name + " Module Activated" );
 		}
 
 		private void StopNyang( ITweet tweet, Module module )
@@ -212,7 +216,7 @@ namespace TrueRED.Modules
 			if ( string.IsNullOrEmpty( ownerID ) )
 			{
 				IsRunning = false;
-				this.OwnerID =0;
+				this.OwnerID = 0;
 			}
 			else
 			{

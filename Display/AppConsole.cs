@@ -17,45 +17,49 @@ namespace TrueRED.Display
 	public partial class AppConsole : MaterialForm
 	{
 		private readonly MaterialSkinManager materialSkinManager;
-		List<ModuleObject> Modules = new List<ModuleObject>();
 		public DataSet ds { get; private set; }
 
-		public AppConsole( List<Module> modules )
+		public AppConsole( )
 		{
 			InitializeComponent( );
 			
-			// Initialize MaterialSkinManager
 			materialSkinManager = MaterialSkinManager.Instance;
 			materialSkinManager.AddFormToManage( this );
 			materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
 			materialSkinManager.ColorScheme = new ColorScheme( Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE );
 			
-			for ( int i = 0; i < modules.Count; i++ )
+			for ( int i = 0; i < Globals.Instance.Modules.Count; i++ )
 			{
-				Modules.Add( new ModuleObject( i, modules[i].Name, modules[i] ) );
-			}
-
-			// 바인딩 안 됨.
-			( ( ListBox ) checkedlistbox_modules ).DataSource = Modules;
-			( ( ListBox ) checkedlistbox_modules ).DisplayMember = "Name";
-			( ( ListBox ) checkedlistbox_modules ).ValueMember = "IsRunning";
-
-			for ( int i = 0; i < checkedlistbox_modules.Items.Count; i++ )
-			{
-				ModuleObject obj = (ModuleObject)checkedlistbox_modules.Items[i];
-				checkedlistbox_modules.SetItemChecked( i, obj.Module.IsRunning );
-				Modules[i].Module.ModuleStateChangeListener.Add( i, delegate ( int index, bool running )
+				checkedlistbox_modules.Items.Add( Globals.Instance.Modules[i].Name, Globals.Instance.Modules[i].IsRunning );
+					var index = i;
+				Globals.Instance.Modules[i].ModuleStateChangeListener.Add( delegate ( bool running )
 				{
 					this.Invoke( new MethodInvoker( delegate
-					  {
-						  this.checkedlistbox_modules.ItemCheck -= this.checkedlistbox_modules_ItemCheck;
-						  checkedlistbox_modules.SetItemChecked( index, Modules[index].Module.IsRunning );
-						  this.checkedlistbox_modules.ItemCheck += this.checkedlistbox_modules_ItemCheck;
-					  } ) );
+					{
+						this.checkedlistbox_modules.ItemCheck -= this.checkedlistbox_modules_ItemCheck;
+						checkedlistbox_modules.SetItemChecked( index, Globals.Instance.Modules[index].IsRunning );
+						this.checkedlistbox_modules.ItemCheck += this.checkedlistbox_modules_ItemCheck;
+					} ) );
 				} );
-
+				checkedlistbox_modules.SetItemChecked( i, Globals.Instance.Modules[i].IsRunning );
 			}
 			this.checkedlistbox_modules.ItemCheck += this.checkedlistbox_modules_ItemCheck;
+
+			Globals.Instance.Modules.OnModuleAttachLiestner.Add( delegate ( Module module )
+			 {
+				 var index = checkedlistbox_modules.Items.Count;
+				 checkedlistbox_modules.Items.Add( module.Name, module.IsRunning );
+				 module.ModuleStateChangeListener.Add( delegate ( bool running )
+				 {
+					 this.Invoke( new MethodInvoker( delegate
+					 {
+						 this.checkedlistbox_modules.ItemCheck -= this.checkedlistbox_modules_ItemCheck;
+						 checkedlistbox_modules.SetItemChecked( index, Globals.Instance.Modules[index].IsRunning );
+						 this.checkedlistbox_modules.ItemCheck += this.checkedlistbox_modules_ItemCheck;
+					 } ) );
+				 } );
+				 checkedlistbox_modules.SetItemChecked( index, module.IsRunning );
+			 } );
 		}
 
 		private void button_exit_Click( object sender, EventArgs e )
@@ -65,11 +69,10 @@ namespace TrueRED.Display
 
 		private void button_getModule_Click( object sender, EventArgs e )
 		{
-			if ( Modules == null ) Log.Error( "Controller", "Modules undefined" );
 			string result = string.Empty;
-			foreach ( var item in Modules )
+			foreach ( var item in Globals.Instance.Modules )
 			{
-				result += string.Format( "\n    {0} : {1}", item.Name, item.Module.IsRunning.ToString( ) );
+				result += string.Format( "\n    {0} : {1}", item.Name, item.IsRunning.ToString( ) );
 			}
 			Log.Debug( "AppConsole", string.Format( "{0}", result ) );
 		}
@@ -77,9 +80,9 @@ namespace TrueRED.Display
 		private void checkedlistbox_modules_ItemCheck( object sender, ItemCheckEventArgs e )
 		{
 			var i = checkedlistbox_modules.SelectedIndex;
-			Modules[i].IsRunning = !Modules[i].IsRunning;
+			Globals.Instance.Modules[i].IsRunning = !Globals.Instance.Modules[i].IsRunning;
 
-			Log.Debug( "AppConsole", string.Format( "{0} 모듈을 {1}활성화 했어", Modules[i].Name, ( Modules[i].IsRunning ? "" : "비" ) ) );
+			Log.Debug( "AppConsole", string.Format( "{0} 모듈이 AppConsole에 의하여 {1}활성화", Globals.Instance.Modules[i].Name, ( Globals.Instance.Modules[i].IsRunning ? "" : "비" ) ) );
 		}
 
 		private void button_console_Click( object sender, EventArgs e )
@@ -96,34 +99,6 @@ namespace TrueRED.Display
 		private void button_rmvModule_Click( object sender, EventArgs e )
 		{
 
-		}
-	}
-
-	public class ModuleObject
-	{
-		public Module Module { get; set; }
-		public string Name { get; set; }
-		public int Index
-		{
-			get; set;
-		}
-		public bool IsRunning
-		{
-			get
-			{
-				return Module.IsRunning;
-			}
-			set
-			{
-				Module.IsRunning = value;
-			}
-		}
-
-		public ModuleObject( int index, string name, Module module )
-		{
-			this.Index = index;
-			this.Name = name;
-			this.Module = module;
 		}
 	}
 }

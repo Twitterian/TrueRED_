@@ -13,15 +13,19 @@ namespace TrueRED.Modules
 	{
 		public static string ModuleName { get; protected set; } = "Reflector";
 		public static string ModuleDescription { get; protected set; } = "Auto mutal-follow";
-		public static List<Display.ModuleFaceCategory> GetModuleFace()
+		public static List<Display.ModuleFaceCategory> GetModuleFace( )
 		{
 			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
-			
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			face.Add( category1 );
+
 			return face;
 		}
-		public static ReflectorModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		public static ReflectorModule CreateModule( string moduleName )
 		{
-			return null;
+			return new ReflectorModule( moduleName );
 		}
 
 		public ReflectorModule( string name ) : base( name )

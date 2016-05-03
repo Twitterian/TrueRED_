@@ -64,7 +64,7 @@ namespace TrueRED.Modules
 		void Run( );
 	}
 
-	public class Module : IUseSetting
+	public class Module
 	{
 		private bool _IsRunning;
 		public bool IsRunning
@@ -136,6 +136,11 @@ namespace TrueRED.Modules
 				module = new WeatherModule( name, user, owner );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
+			else if ( type == typeof( RegularTweet ).FullName )
+			{
+				module = new RegularTweet( name, user, owner );
+				( ( IUseSetting ) module ).OpenSettings( parser );
+			}
 			else
 			{
 				return null;
@@ -152,14 +157,6 @@ namespace TrueRED.Modules
 
 			return module;
 		}
-
-		void IUseSetting.OpenSettings( INIParser parser )
-		{
-
-		}
-
-		void IUseSetting.SaveSettings( INIParser parser )
-		{
-		}
+		
 	}
 }

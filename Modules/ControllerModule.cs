@@ -10,7 +10,7 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ControllerModule : Module, IStreamListener
+	class ControllerModule : Module, IStreamListener, IUseSetting
 	{
 		public static string ModuleName { get; protected set; } = "Controller";
 		public static string ModuleDescription { get; protected set; } = "Activaste / Deactivate modules with mention";
@@ -22,15 +22,15 @@ namespace TrueRED.Modules
 		}
 		public static ControllerModule CreateModule( List<System.Windows.Forms.Control> InputForms )
 		{
-			return null;
+			return new ControllerModule( ModuleName );
 		}
 
-		Dictionary<string, Module> modules;
-
-		public ControllerModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public ControllerModule( string name ) : base( name )
 		{
-			this.modules = modules;
+
 		}
+
+		public long OwnerID { get; set; }
 
 		void IStreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
 		{
@@ -91,10 +91,12 @@ namespace TrueRED.Modules
 		{
 			var tweet = args.Tweet;
 
-			if ( tweet.CreatedBy.Id == user.Id ) return;
-			if ( tweet.CreatedBy.Id != owner.Id ) return;
+			if ( tweet.CreatedBy.Id == User.Id ) return;
+			if ( tweet.CreatedBy.Id != OwnerID ) return;
 			if ( tweet.IsRetweet == true ) return;
-			if ( tweet.InReplyToUserId != user.Id ) return;
+			if ( tweet.InReplyToUserId != User.Id ) return;
+
+			var modules = Globals.Instance.Modules;
 
 			if ( tweet.Text.Contains( "Deactivate" ) )
 			{
@@ -104,9 +106,9 @@ namespace TrueRED.Modules
 				{
 					StopNyang( tweet );
 				}
-				foreach ( var item in modules.Keys )
+				foreach ( var item in modules )
 				{
-					if ( tweet.Text.Contains( item ) )
+					if ( tweet.Text.Contains( item.Name ) )
 					{
 						StopNyang( tweet, item );
 					}
@@ -120,9 +122,9 @@ namespace TrueRED.Modules
 				{
 					GoNyang( tweet );
 				}
-				foreach ( var item in modules.Keys )
+				foreach ( var item in modules )
 				{
-					if ( tweet.Text.Contains( item ) )
+					if ( tweet.Text.Contains( item.Name ) )
 					{
 						GoNyang( tweet, item );
 					}
@@ -139,67 +141,49 @@ namespace TrueRED.Modules
 		// TODO: 모듈이 많으면 트윗 되지 않을 것임. 나눠서 트윗하는 함수를 만들어야함
 		private void GetModuleState( ITweet tweet )
 		{
-			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );
 			string result = string.Empty;
+			var modules = Globals.Instance.Modules;
 			for ( int i = 0; i < modules.Count; i++ )
 			{
-				result += string.Format( "{0} : {1}\n", modules.Keys.ToArray( )[i], modules.Values.ToArray( )[i].IsRunning.ToString( ) );
+				result += string.Format( "{0} : {1}\n", modules[i].Name, modules[i].IsRunning.ToString( ) );
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}", owner.ScreenName, result ), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}", tweet.CreatedBy.ScreenName, result ), tweet.Id );
 		}
 
 		private void GoNyang( ITweet tweet )
 		{
-			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );
-			foreach ( Modules.Module module in modules.Values )
+			var modules = Globals.Instance.Modules;
+			foreach ( Module module in modules )
 			{
 				module.IsRunning = true;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 활성화 했어", owner.ScreenName, modules.Count ), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
 			Log.Debug( "Controller", "All Module Activated" );
 		}
 
 		private void StopNyang( ITweet tweet )
 		{
-			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );
-			foreach ( Modules.Module module in modules.Values )
+			var modules = Globals.Instance.Modules;
+			foreach ( Module module in modules )
 			{
 				module.IsRunning = false;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 비활성화 했어", owner.ScreenName, modules.Count ), tweet.Id );
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 비활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
 			Log.Debug( "Controller", "All Module Deactivated" );
 		}
 
-		private void GoNyang( ITweet tweet, string module )
+		private void GoNyang( ITweet tweet, Module module )
 		{
-			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );
-			if ( modules.ContainsKey( module ) )
-			{
-				modules[module].IsRunning = true;
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 활성화 했어", owner.ScreenName, module ), tweet.Id );
-				Log.Debug( "Controller", module + " Module Activated" );
-			}
-			else
-			{
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어", owner.ScreenName, module ), tweet.Id );
-				Log.Debug( "Controller", module + " Not Found" );
-			}
+			module.IsRunning = true;
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
+			Log.Debug( "Controller", module.Name+ " Module Activated" );
 		}
 
-		private void StopNyang( ITweet tweet, string module )
+		private void StopNyang( ITweet tweet, Module module )
 		{
-			if ( modules == null ) Log.Error( "Controller", "Modules undefined" );
-			if ( modules.ContainsKey( module ) )
-			{
-				modules[module].IsRunning = false;
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 비활성화 했어", owner.ScreenName, module ), tweet.Id );
-				Log.Debug( "Controller", module + " Module Deactivated" );
-			}
-			else
-			{
-				Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1} 모듈을 찾을 수 없었어", owner.ScreenName, module ), tweet.Id );
-				Log.Debug( "Controller", module + " Not Found" );
-			}
+			module.IsRunning = false;
+			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 비활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
+			Log.Debug( "Controller", module.Name + " Module Deactivated" );
 		}
 
 		void IStreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
@@ -221,5 +205,26 @@ namespace TrueRED.Modules
 		{
 
 		}
+
+		void IUseSetting.OpenSettings( INIParser parser )
+		{
+			var ownerID = parser.GetValue( "Module","OwnerID" );
+			if ( string.IsNullOrEmpty( ownerID ) )
+			{
+				IsRunning = false;
+				this.OwnerID =0;
+			}
+			else
+			{
+				this.OwnerID = long.Parse( ownerID );
+			}
+		}
+
+		void IUseSetting.SaveSettings( INIParser parser )
+		{
+			WriteBaseSetting( parser );
+			parser.SetValue( "Module", "OwnerID", OwnerID );
+		}
+
 	}
 }

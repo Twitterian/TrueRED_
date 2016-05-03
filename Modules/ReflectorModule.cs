@@ -24,7 +24,7 @@ namespace TrueRED.Modules
 			return null;
 		}
 
-		public ReflectorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public ReflectorModule( string name ) : base( name )
 		{
 
 		}
@@ -47,7 +47,7 @@ namespace TrueRED.Modules
 		void IStreamListener.FollowedByUser( object sender, UserFollowedEventArgs args )
 		{
 			if ( !IsRunning ) return;
-			user.FollowUser( args.User );
+			User.FollowUser( args.User );
 			Log.Http( "Reflector worked", string.Format( "AutoFollowed {0}({1})", args.User.Name, args.User.ScreenName ) );
 		}
 

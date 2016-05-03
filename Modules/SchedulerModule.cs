@@ -34,7 +34,7 @@ namespace TrueRED.Modules
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;
 
-		public SchedulerModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public SchedulerModule( string name) : base( name)
 		{
 
 		}

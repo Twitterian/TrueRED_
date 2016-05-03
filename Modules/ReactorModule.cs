@@ -41,7 +41,7 @@ namespace TrueRED.Modules
 		}
 		public static ReactorModule CreateModule( List<System.Windows.Forms.Control> InputForms )
 		{
-			return new ReactorModule("테스트1", null, null );
+			return new ReactorModule( "테스트1" );
 		}
 
 		string stringset;
@@ -58,7 +58,7 @@ namespace TrueRED.Modules
 		int ExpireTime;
 		int ExpireDelay;
 
-		public ReactorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public ReactorModule( string name ) : base( name )
 		{
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
 		}
@@ -154,7 +154,7 @@ namespace TrueRED.Modules
 						state = TweetMatchResult.Match;
 						break;
 					case "Mention":
-						if ( status.InReplyToUserId == user.Id )
+						if ( status.InReplyToUserId == User.Id )
 						{
 							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							state = TweetMatchResult.Match;
@@ -202,7 +202,7 @@ namespace TrueRED.Modules
 			if ( !IsRunning ) return;
 			var tweet = args.Tweet;
 			if ( !Verification( ) ) return;
-			if ( tweet.CreatedBy.Id == user.Id ) return;
+			if ( tweet.CreatedBy.Id == User.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
 
 			var cases = new List<int>();

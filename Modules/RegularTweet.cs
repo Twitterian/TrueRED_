@@ -42,7 +42,7 @@ namespace TrueRED.Modules
 		int duration;
 		int variation;
 
-		public RegularTweet( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public RegularTweet( string name ) : base( name)
 		{
 
 		}

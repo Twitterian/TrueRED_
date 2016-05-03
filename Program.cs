@@ -13,11 +13,12 @@ namespace TrueRED
 {
 	class Program
 	{
+
 		static void Main( string[] args )
 		{
 #if DEBUG
-			//Body( );
-			WindowDebugMode( );
+			Body( );
+			//WindowDebugMode( );
 #else
 			try
 			{
@@ -52,7 +53,7 @@ namespace TrueRED
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );
 			string accessSecret = setting.GetValue( AuthData, "AccessSecret" );
 			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
-			var user = User.GetAuthenticatedUser( );
+			var user = Globals.Instance.User;
 			Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
 
 			long ownerID = 0;
@@ -71,21 +72,20 @@ namespace TrueRED
 
 			#region Initialize Modules
 
-			var modules = new List<Module>();
 			var module_settings = Directory.GetFiles( "Modules" );
 			foreach ( var item in module_settings )
 			{
 				if ( item.ToLower( ).EndsWith( ".ini" ) )
 				{
 					var parser = new INIParser(item);
-					var module = Module.Create( parser, user, owner);
-					if ( module != null ) modules.Add( module );
+					var module = Module.Create( parser );
+					if ( module != null ) Globals.Instance.Modules.Add( module );
 				}
 			}
 
 			#endregion
 
-			foreach ( var item in modules )
+			foreach ( var item in Globals.Instance.Modules )
 			{
 				if ( item is ITimeTask )
 				{
@@ -94,11 +94,11 @@ namespace TrueRED
 				}
 			}
 
-			CreateStream( modules.OfType<IStreamListener>( ) );
+			CreateStream( Globals.Instance.Modules.OfType<IStreamListener>( ) );
 
-			new Display.AppConsole( modules ).ShowDialog( );
+			new Display.AppConsole( Globals.Instance.Modules ).ShowDialog( );
 
-			foreach ( var item in modules )
+			foreach ( var item in Globals.Instance.Modules )
 			{
 				var module = (IUseSetting)item;
 				var parser = new INIParser(Path.Combine( "Modules", item.Name + ".ini" ));

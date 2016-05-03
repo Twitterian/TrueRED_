@@ -29,7 +29,7 @@ namespace TrueRED.Modules
 			return null;
 		}
 
-		public WeatherModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
+		public WeatherModule( string name ) : base( name )
 		{
 
 		}
@@ -94,9 +94,9 @@ namespace TrueRED.Modules
 			var tweet = args.Tweet;
 
 			if ( !IsRunning ) return;
-			if ( tweet.CreatedBy.Id == user.Id ) return;
+			if ( tweet.CreatedBy.Id == User.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
-			if ( tweet.InReplyToUserId != user.Id ) return;
+			if ( tweet.InReplyToUserId != User.Id ) return;
 
 			if ( tweet.Text.Contains( "날씨" ) )
 			{

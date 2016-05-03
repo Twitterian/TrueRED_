@@ -46,7 +46,7 @@ namespace TrueRED.Modules
 
 		void AccessRevoked( object sender, AccessRevokedEventArgs args );
 	}
-	
+
 	/// <summary>
 	/// IUserSetting 인터페이스를 통해 별도 ini파일의 설정을 사용할 수 있습니다.
 	/// </summary>
@@ -84,8 +84,7 @@ namespace TrueRED.Modules
 		}
 
 		public string Name { get; private set; }
-		protected IAuthenticatedUser user { get; private set; }
-		protected IUser owner { get; private set; }
+		protected IAuthenticatedUser User { get; private set; }
 
 		private Dictionary<int, Action<int, bool>> _ModuleStateChangeListener = new Dictionary<int, Action<int, bool>>();
 		public Dictionary<int, Action<int, bool>> ModuleStateChangeListener
@@ -96,14 +95,13 @@ namespace TrueRED.Modules
 			}
 		}
 
-		protected Module( string name, IAuthenticatedUser user, IUser owner )
+		protected Module( string name )
 		{
 			this.Name = name;
-			this.user = user;
-			this.owner = owner;
+			this.User = Globals.Instance.User;
 		}
 
-		public static Module Create( INIParser parser, IAuthenticatedUser user, IUser owner )
+		public static Module Create( INIParser parser )
 		{
 			var running = parser.GetValue("Module", "IsRunning");
 			var type = parser.GetValue("Module", "Type");
@@ -113,32 +111,32 @@ namespace TrueRED.Modules
 
 			if ( type == typeof( ReactorModule ).FullName )
 			{
-				module = new ReactorModule( name, user, owner);
+				module = new ReactorModule( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( ControllerModule ).FullName )
 			{
-				module = new ControllerModule( name, user, owner );
+				module = new ControllerModule( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( ReflectorModule ).FullName )
 			{
-				module = new ReflectorModule( name, user, owner );
+				module = new ReflectorModule( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( SchedulerModule ).FullName )
 			{
-				module = new SchedulerModule( name, user, owner );
+				module = new SchedulerModule( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( WeatherModule ).FullName )
 			{
-				module = new WeatherModule( name, user, owner );
+				module = new WeatherModule( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( RegularTweet ).FullName )
 			{
-				module = new RegularTweet( name, user, owner );
+				module = new RegularTweet( name );
 				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else
@@ -157,6 +155,13 @@ namespace TrueRED.Modules
 
 			return module;
 		}
-		
+
+		protected void WriteBaseSetting( INIParser parser )
+		{
+			parser.SetValue( "Module", "IsRunning", IsRunning );
+			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
+			parser.SetValue( "Module", "Name", Name );
+		}
+
 	}
 }

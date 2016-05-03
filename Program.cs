@@ -16,7 +16,8 @@ namespace TrueRED
 		static void Main( string[] args )
 		{
 #if DEBUG
-			Body( );
+			//Body( );
+			WindowDebugMode( );
 #else
 			try
 			{
@@ -74,14 +75,14 @@ namespace TrueRED
 			var module_settings = Directory.GetFiles( "Modules" );
 			foreach ( var item in module_settings )
 			{
-				if(item.ToLower().EndsWith(".ini"))
+				if ( item.ToLower( ).EndsWith( ".ini" ) )
 				{
 					var parser = new INIParser(item);
 					var module = Module.Create( parser, user, owner);
-					if(module != null) modules.Add( module );
+					if ( module != null ) modules.Add( module );
 				}
 			}
-			
+
 			#endregion
 
 			foreach ( var item in modules )
@@ -106,9 +107,9 @@ namespace TrueRED
 			}
 
 			setting.Save( );
-        }
+		}
 
-		private static void InitDirectories( )
+		static void InitDirectories( )
 		{
 			var settings = Path.Combine( Directory.GetCurrentDirectory( ), "Modules" ) ;
 			if ( !Directory.Exists( settings ) )
@@ -123,7 +124,7 @@ namespace TrueRED
 			}
 		}
 
-		private static void CreateStream( IEnumerable<IStreamListener> modules )
+		static void CreateStream( IEnumerable<IStreamListener> modules )
 		{
 			if ( modules.Count( ) == 0 ) return;
 
@@ -155,6 +156,16 @@ namespace TrueRED
 			userStream.StartStreamAsync( );
 			Log.Http( "Program", "Stream is running now" );
 		}
-		
+
+
+		#region Test Modules
+
+		static void WindowDebugMode( )
+		{
+			new Display.MakeModule( ).ShowDialog( );
+		}
+
+		#endregion
+
 	}
 }

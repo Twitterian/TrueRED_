@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -45,74 +44,22 @@ namespace TrueRED
 			Log.Init( );
 			StringSetsManager.LoadStringSets( "Stringsets" );
 
-            var setting = new INIParser( "Globals.ini" );
+			var setting = new INIParser( "Globals.ini" );
 			var AuthData = "Authenticate";
 			string consumerKey = setting.GetValue( AuthData, "ConsumerKey" );
 			string consumerSecret = setting.GetValue( AuthData, "CconsumerSecret" );
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );
 			string accessSecret = setting.GetValue( AuthData, "AccessSecret" );
-            if (string.IsNullOrWhiteSpace(consumerKey) || string.IsNullOrWhiteSpace(consumerSecret))
-            {
-                Log.Error("Program", "Unable to get consumerKey / Secret. Please check config file.");
-                if (string.IsNullOrWhiteSpace(consumerKey)) { setting.SetValue(AuthData, "ConsumerKey", ""); }
-                if (string.IsNullOrWhiteSpace(consumerSecret)) { setting.SetValue(AuthData, "CconsumerSecret", ""); }
-                if (string.IsNullOrWhiteSpace(accessToken)) { setting.SetValue(AuthData, "AccessToken", ""); }
-                if (string.IsNullOrWhiteSpace(accessSecret)) { setting.SetValue(AuthData, "AccessSecret", ""); }
-                setting.Save();
-                return;
-            }
-            else if (string.IsNullOrWhiteSpace(accessToken) || string.IsNullOrWhiteSpace(accessSecret))
-            {
-                TwitterOAuth oauth = new TwitterOAuth(consumerKey, consumerSecret);
-                TwitterOAuth.TokenPair tokens = null;
-                tokens = oauth.RequestToken();
-                oauth.User.Token = tokens.Token;
-                oauth.User.Secret = tokens.Token;
-                try
-                {
-                    using (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = "https://api.twitter.com/oauth/authorize?oauth_token=" + tokens.Token }))
-                    { }
-                }
-                catch
-                { }
-
-                var form = new Display.TwitterOAuthVerifier();
-                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    string value = form.verifier;
-                    tokens = oauth.AccessToken(value);
-                    oauth.User.Token = tokens.Token;
-                    oauth.User.Secret = tokens.Token;
-                }
-                else
-                {
-                    tokens = null;
-                }
-
-                if (tokens != null)
-                {
-                    accessToken = oauth.User.Token;
-                    accessSecret = oauth.User.Secret;
-                    setting.SetValue(AuthData, "AccessToken", tokens.Token);
-                    setting.SetValue(AuthData, "AccessSecret", tokens.Secret);
-                    setting.Save();
-                }
-                else
-                {
-                    Log.Error("Program", "Unable to log in twitter!!!!!!");
-                    return;
-                }
-            }
-            Auth.SetUserCredentials(consumerKey, consumerSecret, accessToken, accessSecret);
-            var user = User.GetAuthenticatedUser();
-            Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
+			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
+			var user = User.GetAuthenticatedUser( );
+			Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
 
 			long ownerID = 0;
 			try
 			{
 				ownerID = long.Parse( setting.GetValue( "AppInfo", "OwnerID" ) );
 			}
-			catch
+			catch ( FormatException e )
 			{
 				ownerID = 0;
 			}

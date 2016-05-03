@@ -16,24 +16,26 @@ namespace TrueRED.Display
 	{
 		public List<Control> InputFields { get; private set; } = new List<Control>( );
 
-		public ModuleFace( string moduleName, IEnumerable<ModuleFaceCategory> moduleFaceInfo, EventHandler donebuttonClickLiestner )
+		public ModuleFace( Type type, IEnumerable<ModuleFaceCategory> moduleFaceInfo, Action<Type> doneCallback )
 		{
 			SuspendLayout( );
-			InitializeComponent( moduleName );
+			InitializeComponent( type.Name );
 			AttachModuleFace( moduleFaceInfo );
-			AttachDoneButton( donebuttonClickLiestner );
+			AttachDoneButton( type, doneCallback );
 			ResumeLayout( );
 		}
 
-		private void AttachDoneButton( EventHandler donebuttonClickLiestner )
+		private void AttachDoneButton( Type type, Action<Type> donebuttonClickLiestner )
 		{
 			var button = new MaterialFlatButton();
 			button.Text = "Done";
 			button.Location = new Point( this.Size.Width - button.Size.Width - 10, this.Size.Height - button.Size.Height );
-			button.Click += donebuttonClickLiestner;
+			button.Click += delegate
+			{
+				donebuttonClickLiestner( type );
+			};
 			button.Anchor = ( AnchorStyles.Bottom | AnchorStyles.Right );
 			this.Controls.Add( button );
-
 		}
 
 		private void InitializeComponent( string moduleName )

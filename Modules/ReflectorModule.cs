@@ -19,6 +19,10 @@ namespace TrueRED.Modules
 			
 			return face;
 		}
+		public static ReflectorModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		{
+			return null;
+		}
 
 		public ReflectorModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{

@@ -15,6 +15,8 @@ namespace TrueRED.Display
 	public partial class MakeModule : MaterialForm
 	{
 		private readonly MaterialSkinManager materialSkinManager;
+		List<Type> types = null;
+
 		public MakeModule( )
 		{
 			InitializeComponent( );
@@ -28,21 +30,22 @@ namespace TrueRED.Display
 			LoadModuleTypes( );
 		}
 
-		private void ModuleFace_DoneButton_Click( object sender, EventArgs e )
-		{
-			Framework.Log.Print( "Callback", "Hello" );
-		}
 
 		void LoadModuleTypes( )
 		{
-			var types = typeof(Modules.Module).Assembly.GetTypes().Where(t => t.BaseType == typeof(Modules.Module)).ToList();
+			types = typeof( Modules.Module ).Assembly.GetTypes( ).Where( t => t.BaseType == typeof( Modules.Module ) ).ToList( );
 			var modules = new Tuple<Type, TabPage>[types.Count()];
 			for ( int i = 0; i < types.Count( ); i++ )
 			{
 				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
-					types[i].Name,
+					types[i],
 					( IEnumerable<ModuleFaceCategory> ) types[i].GetMethod( "GetModuleFace" ).Invoke( null, null ),
-					ModuleFace_DoneButton_Click
+					delegate ( Type t )
+					{
+						// TODO: 전역 모듈 관리 클래스 연동
+						Modules.Module instance = (Modules.Module)t.GetMethod("CreateModule").Invoke( null, new object[] { null } );
+						if ( instance != null ) Framework.Log.Print( "ModuleMaked", instance.ToString( ) );
+					}
 				) );
 			}
 

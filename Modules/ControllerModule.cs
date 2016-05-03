@@ -20,6 +20,10 @@ namespace TrueRED.Modules
 
 			return face;
 		}
+		public static ControllerModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		{
+			return null;
+		}
 
 		Dictionary<string, Module> modules;
 

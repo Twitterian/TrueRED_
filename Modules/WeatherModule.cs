@@ -24,6 +24,10 @@ namespace TrueRED.Modules
 
 			return face;
 		}
+		public static WeatherModule CreateModule(List<System.Windows.Forms.Control> InputForms)
+		{
+			return null;
+		}
 
 		public WeatherModule( string name, IAuthenticatedUser user, IUser owner ) : base( name, user, owner )
 		{

@@ -30,6 +30,10 @@ namespace TrueRED.Modules
 
 			return face;
 		}
+		public static RegularTweet CreateModule( List<System.Windows.Forms.Control> InputForms )
+		{
+			return null;
+		}
 
 		Random _selector = new Random();
 

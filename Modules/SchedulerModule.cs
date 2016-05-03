@@ -26,6 +26,10 @@ namespace TrueRED.Modules
 
 			return face;
 		}
+		public static SchedulerModule CreateModule( List<System.Windows.Forms.Control> InputForms )
+		{
+			return null;
+		}
 
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;

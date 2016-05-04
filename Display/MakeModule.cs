@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using MaterialSkin;
 using MaterialSkin.Controls;
+using TrueRED.Modules;
 
 namespace TrueRED.Display
 {
@@ -36,16 +34,18 @@ namespace TrueRED.Display
 			var modules = new Tuple<Type, TabPage>[types.Count()];
 			for ( int i = 0; i < types.Count( ); i++ )
 			{
+				//TODO: Maybe heavycost
+				var factory = ( Module ) Activator.CreateInstance( types[i] );
 				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
 					types[i],
-					( IEnumerable<ModuleFaceCategory> ) types[i].GetMethod( "GetModuleFace" ).Invoke( null, null ),
+					factory.GetModuleFace(),
 					delegate ( Type t, object[] @params )
 					{
-						Modules.Module instance = (Modules.Module)t.GetMethod("CreateModule").Invoke( null, @params);
-						if ( instance != null )
+						var instance = factory.CreateModule(@params);
+                        if ( instance != null )
 						{
 							Framework.Log.Print( "ModuleMaked", instance.ToString( ) );
-							Framework.Globals.Instance.Modules.Add( instance );
+							Framework.ModuleManager.Modules.Add( instance );
 						}
 						this.Close( );
 					}
@@ -92,6 +92,8 @@ namespace TrueRED.Display
 
 		MaterialRadioButton NewModuleType( int i, Type module )
 		{
+			//TODO: Maybe heavycost
+			var factory = ( Module ) Activator.CreateInstance( module );
 			MaterialRadioButton button = new MaterialRadioButton();
 			button.AutoSize = true;
 			button.Depth = 0;
@@ -100,7 +102,7 @@ namespace TrueRED.Display
 			button.Margin = new System.Windows.Forms.Padding( 0 );
 			button.MouseLocation = new System.Drawing.Point( -1, -1 );
 			button.MouseState = MaterialSkin.MouseState.HOVER;
-			button.Text = module.GetProperty( "ModuleName" ).GetValue( module ).ToString( ) + " : " + module.GetProperty( "ModuleDescription" ).GetValue( module ).ToString( );
+			button.Text = factory.ModuleName + " : " + factory.ModuleDescription;
 			button.Ripple = true;
 			button.Size = new System.Drawing.Size( 163, 30 );
 			button.TabIndex = 10;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TrueRED.Display;
 using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
@@ -10,31 +8,34 @@ using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class ControllerModule : Module, IStreamListener, IUseSetting
+	class ControllerModule : Module, IStreamListener
 	{
-		public static string ModuleName { get; protected set; } = "Controller";
-		public static string ModuleDescription { get; protected set; } = "Activaste / Deactivate modules with mention";
-		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		public ControllerModule( ) : base( string.Empty )
 		{
-			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
-
-			var category1 = new Display.ModuleFaceCategory("Module" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			face.Add( category1 );
-
-			return face;
+			
 		}
-		public static ControllerModule CreateModule( string moduleName )
-		{
-			return new ControllerModule( ModuleName );
-		}
-
 		public ControllerModule( string name ) : base( name )
 		{
 
 		}
 
 		public long OwnerID { get; set; }
+
+		public override string ModuleName
+		{
+			get
+			{
+				return "Controller";
+			}
+		}
+
+		public override string ModuleDescription
+		{
+			get
+			{
+				return "Activaste / Deactivate modules with mention";
+			}
+		}
 
 		void IStreamListener.AccessRevoked( object sender, AccessRevokedEventArgs args )
 		{
@@ -100,11 +101,11 @@ namespace TrueRED.Modules
 			if ( tweet.IsRetweet == true ) return;
 			if ( tweet.InReplyToUserId != User.Id ) return;
 
-			var modules = Globals.Instance.Modules;
+			var modules = ModuleManager.Modules;
 
 			if ( tweet.Text.Contains( "Deactivate" ) )
 			{
-				Log.Debug( "Controller", string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
 
 				if ( tweet.Text.Contains( "All" ) )
 				{
@@ -120,7 +121,7 @@ namespace TrueRED.Modules
 			}
 			else if ( tweet.Text.Contains( "Activate" ) )
 			{
-				Log.Debug( "Controller", string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
 
 				if ( tweet.Text.Contains( "All" ) )
 				{
@@ -136,17 +137,17 @@ namespace TrueRED.Modules
 			}
 			else if ( tweet.Text.Contains( "GetModuleState" ) )
 			{
-				Log.Debug( "Controller", string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
 
 				GetModuleState( tweet );
 			}
 		}
 
-		// TODO: 모듈이 많으면 트윗 되지 않을 것임. 나눠서 트윗하는 함수를 만들어야함
+		// TODO: 모듈이 많으면 트윗 되지 않음. 나눠서 트윗하는 함수를 만들어야함
 		private void GetModuleState( ITweet tweet )
 		{
 			string result = string.Empty;
-			var modules = Globals.Instance.Modules;
+			var modules = ModuleManager.Modules;
 			for ( int i = 0; i < modules.Count; i++ )
 			{
 				result += string.Format( "{0} : {1}\n", modules[i].Name, modules[i].IsRunning.ToString( ) );
@@ -156,38 +157,38 @@ namespace TrueRED.Modules
 
 		private void GoNyang( ITweet tweet )
 		{
-			var modules = Globals.Instance.Modules;
+			var modules = ModuleManager.Modules;
 			foreach ( Module module in modules )
 			{
 				module.IsRunning = true;
 			}
 			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
-			Log.Debug( "Controller", "All Module Activated" );
+			Log.Debug( this.Name, "All Module Activated" );
 		}
 
 		private void StopNyang( ITweet tweet )
 		{
-			var modules = Globals.Instance.Modules;
+			var modules = ModuleManager.Modules;
 			foreach ( Module module in modules )
 			{
 				module.IsRunning = false;
 			}
 			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 비활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
-			Log.Debug( "Controller", "All Module Deactivated" );
+			Log.Debug( this.Name, "All Module Deactivated" );
 		}
 
 		private void GoNyang( ITweet tweet, Module module )
 		{
 			module.IsRunning = true;
 			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
-			Log.Debug( "Controller", module.Name + " Module Activated" );
+			Log.Debug( this.Name, module.Name + " Module Activated" );
 		}
 
 		private void StopNyang( ITweet tweet, Module module )
 		{
 			module.IsRunning = false;
 			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 비활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
-			Log.Debug( "Controller", module.Name + " Module Deactivated" );
+			Log.Debug( this.Name, module.Name + " Module Deactivated" );
 		}
 
 		void IStreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
@@ -210,7 +211,7 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( INIParser parser )
+		public override void OpenSettings( INIParser parser )
 		{
 			var ownerID = parser.GetValue( "Module","OwnerID" );
 			if ( string.IsNullOrEmpty( ownerID ) )
@@ -224,11 +225,31 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( INIParser parser )
+		public override void SaveSettings( INIParser parser )
 		{
 			WriteBaseSetting( parser );
 			parser.SetValue( "Module", "OwnerID", OwnerID );
 		}
 
+		public override void Release( )
+		{
+
+		}
+
+		public override Module CreateModule( object[] @params )
+		{
+			return new ControllerModule( @params[0].ToString( ) );
+		}
+
+		public override List<ModuleFaceCategory> GetModuleFace( )
+		{
+			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new Display.ModuleFaceCategory("Module" );
+			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			face.Add( category1 );
+
+			return face;
+		}
 	}
 }

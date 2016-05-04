@@ -114,9 +114,11 @@
     <Compile Include="Framework\HttpRepeaters\Weather.cs" />
     <Compile Include="Framework\INIParser.cs" />
     <Compile Include="Framework\Log.cs" />
+    <Compile Include="Framework\ModuleManager.cs" />
+    <Compile Include="Framework\Singleton.cs" />
     <Compile Include="Framework\StringSetsManager.cs" />
     <Compile Include="Modules\ReflectorModule.cs" />
-    <Compile Include="Modules\ModuleBase.cs" />
+    <Compile Include="Modules\_ModuleBase.cs" />
     <Compile Include="Modules\ReactorModule.cs" />
     <Compile Include="Modules\RegularTweet.cs" />
     <Compile Include="Modules\SchedulerModule.cs" />

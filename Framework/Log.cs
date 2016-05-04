@@ -47,6 +47,12 @@ namespace TrueRED.Framework
 			Console.ForegroundColor = ConsoleColor.Red;
 			Output( tag, message );
 		}
+		public static void CriticalError( string tag, string message )
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Output( tag, message );
+			//TODO: 크리티컬 에러 메세지 (팝업 등으로)
+		}
 
 		private static void Output( string tag, string message )
 		{

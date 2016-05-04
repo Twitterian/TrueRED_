@@ -1,33 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TrueRED.Display;
 using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
-using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	public class ReflectorModule : Module, IStreamListener, IUseSetting
+	public class ReflectorModule : Module, IStreamListener
 	{
-		public static string ModuleName { get; protected set; } = "Reflector";
-		public static string ModuleDescription { get; protected set; } = "Auto mutal-follow";
-		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		public override string ModuleName
 		{
-			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
-
-			var category1 = new Display.ModuleFaceCategory("Module" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			face.Add( category1 );
-
-			return face;
-		}
-		public static ReflectorModule CreateModule( string moduleName )
-		{
-			return new ReflectorModule( moduleName );
+			get
+			{
+				return "Reflector";
+			}
 		}
 
+		public override string ModuleDescription
+		{
+			get
+			{
+				return "Auto mutal-follow";
+			}
+		}
+
+		public ReflectorModule( ) : base( string.Empty )
+		{
+
+		}
 		public ReflectorModule( string name ) : base( name )
 		{
 
@@ -52,7 +52,7 @@ namespace TrueRED.Modules
 		{
 			if ( !IsRunning ) return;
 			User.FollowUser( args.User );
-			Log.Http( "Reflector worked", string.Format( "AutoFollowed {0}({1})", args.User.Name, args.User.ScreenName ) );
+			Log.Http( this.Name, string.Format( "Auto followed {0}({1})", args.User.Name, args.User.ScreenName ) );
 		}
 
 		void IStreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
@@ -113,15 +113,37 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( INIParser parser )
+		public override void OpenSettings( INIParser parser )
 		{
+
 		}
 
-		void IUseSetting.SaveSettings( INIParser parser )
+		public override void SaveSettings( INIParser parser )
 		{
 			parser.SetValue( "Module", "IsRunning", IsRunning );
 			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
 			parser.SetValue( "Module", "Name", Name );
+		}
+
+		public override void Release( )
+		{
+			throw new NotImplementedException( );
+		}
+
+		public override Module CreateModule( object[] @params )
+		{
+			return new ReflectorModule( ( string ) @params[0] );
+		}
+
+		public override List<ModuleFaceCategory> GetModuleFace( )
+		{
+			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new ModuleFaceCategory("Module" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			face.Add( category1 );
+
+			return face;
 		}
 	}
 }

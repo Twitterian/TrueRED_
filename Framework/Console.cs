@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TrueRED.Framework
 {
@@ -27,7 +23,7 @@ namespace TrueRED.Framework
 			}
 			set
 			{
-				_ConsoleVisible = value ;
+				_ConsoleVisible = value;
 				var handle = GetConsoleWindow();
 				ShowWindow( handle, ConsoleVisible ? SW_SHOW : SW_HIDE );
 			}

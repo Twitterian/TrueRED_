@@ -1,47 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using TrueRED.Display;
 using TrueRED.Framework;
 using Tweetinvi;
-using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
-	class RegularTweet : Module, ITimeTask, IUseSetting
+	class RegularTweet : Module, ITimeTask
 	{
-		public static string ModuleName { get; protected set; } = "RegularTweet";
-		public static string ModuleDescription { get; protected set; } = "Random tweet";
-		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		public override string ModuleName
 		{
-			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
-
-			var category1 = new Display.ModuleFaceCategory("Module" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
-			face.Add( category1 );
-
-			var category2 = new Display.ModuleFaceCategory("Cycle" );
-			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Duration" );
-			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Variation" );
-			face.Add( category2 );
-
-			return face;
-		}
-		public static RegularTweet CreateModule( string moduleName, string stringsetName, int duration, int variation )
-		{
-			var module = new RegularTweet( moduleName );
-			module.stringsetname = stringsetName;
-			module.stringset = StringSetsManager.GetStrings( module.stringsetname );
-			module.duration = duration;
-			module.variation = variation;
-			module.IsRunning = false;
-			return module;
+			get
+			{
+				return "RegularTweet";
+			}
 		}
 
-
+		public override string ModuleDescription
+		{
+			get
+			{
+				return "Random tweet";
+			}
+		}		
 
 		Random _selector = new Random();
 
@@ -50,6 +32,10 @@ namespace TrueRED.Modules
 		int duration;
 		int variation;
 
+		public RegularTweet( ) : base( string.Empty )
+		{
+
+		}
 		public RegularTweet( string name ) : base( name )
 		{
 
@@ -63,14 +49,14 @@ namespace TrueRED.Modules
 				{
 					var index = _selector.Next(stringset.Length);
 					var result = Tweet.PublishTweet( stringset[index] );
-					if ( result != null ) Log.Print( "Regular", string.Format( "Tweeted [{0}]", result.Text ) );
+					if ( result != null ) Log.Print( this.Name, string.Format( "Tweeted [{0}]", result.Text ) );
 					else continue;
 				}
 				Thread.Sleep( duration - ( ( variation / 2 ) + ( _selector.Next( variation ) ) ) );
 			}
 		}
 
-		void IUseSetting.OpenSettings( INIParser parser )
+		public override void OpenSettings( INIParser parser )
 		{
 			stringsetname = parser.GetValue( "Module", "ReactorStringset" );
 			var duration_val = parser.GetValue("Cycle", "Duration");
@@ -97,7 +83,7 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( INIParser parser )
+		public override void SaveSettings( INIParser parser )
 		{
 			parser.SetValue( "Module", "IsRunning", IsRunning );
 			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
@@ -106,6 +92,39 @@ namespace TrueRED.Modules
 
 			parser.SetValue( "Cycle", "Duration", duration );
 			parser.SetValue( "Cycle", "Variation", variation );
+		}
+
+		public override void Release( )
+		{
+			throw new NotImplementedException( );
+		}
+
+		public override Module CreateModule( object[] @params )
+		{
+			var module = new RegularTweet( (string)@params[0] );
+			module.stringsetname = ( string ) @params[1];
+			module.stringset = StringSetsManager.GetStrings( module.stringsetname );
+			module.duration = ( int ) @params[2];
+			module.variation = ( int ) @params[3];
+			module.IsRunning = false;
+			return module;
+		}
+
+		public override List<ModuleFaceCategory> GetModuleFace( )
+		{
+			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new ModuleFaceCategory("Module" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			face.Add( category1 );
+
+			var category2 = new ModuleFaceCategory("Cycle" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Duration" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Variation" );
+			face.Add( category2 );
+
+			return face;
 		}
 	}
 }

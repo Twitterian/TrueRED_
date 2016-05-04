@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TrueRED.Framework
 {
@@ -11,10 +10,12 @@ namespace TrueRED.Framework
 	{
 		static Dictionary<string, List<string>> _list = new Dictionary<string, List<string>>();
 		static Random _selector = new Random();
+		public static string rootpath = rootpath;
 
 		public static void LoadStringSets( string rootpath )
 		{
 			if ( !Directory.Exists( rootpath ) ) return;
+			StringSetsManager.rootpath = rootpath;
 			var subdirs = Directory.GetDirectories(rootpath );
 			var files = Directory.GetFiles(rootpath);
 			foreach ( var item in subdirs )
@@ -25,6 +26,11 @@ namespace TrueRED.Framework
 			{
 				if ( item.ToLower( ).EndsWith( ".stringset" ) ) LoadStringSet( item );
 			}
+		}
+
+		public static void LoadStringSets( )
+		{
+			LoadStringSets( StringSetsManager.rootpath );
 		}
 
 		private static void LoadStringSet( string path )

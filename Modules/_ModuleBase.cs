@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
@@ -51,15 +48,6 @@ namespace TrueRED.Modules
 	}
 
 	/// <summary>
-	/// IUserSetting 인터페이스를 통해 별도 ini파일의 설정을 사용할 수 있습니다.
-	/// </summary>
-	public interface IUseSetting
-	{
-		void OpenSettings( INIParser parser );
-		void SaveSettings( INIParser parser );
-	}
-
-	/// <summary>
 	/// ITimeTask 인터페이스를 통해 주기적으로 실행되는 작업을 정의할 수 있습니다.
 	/// </summary>
 	public interface ITimeTask
@@ -67,10 +55,16 @@ namespace TrueRED.Modules
 		void Run( );
 	}
 
-	public class Module : IUseSetting
+
+	/// <summary>
+	/// 모든 모듈의 상위 클래스가 되어야 합니다.
+	/// </summary>
+	public abstract class Module
 	{
+		public string Name { get; protected set; } // 모듈의 식별용 이름입니다.
+		protected IAuthenticatedUser User { get; private set; } // 로그인된 유저 정보입니다.
 		private bool _IsRunning;
-		public bool IsRunning
+		public bool IsRunning // 모듈이 현재 켜져있는지 상태를 반환합니다.
 		{
 			get { return _IsRunning; }
 			set
@@ -85,25 +79,26 @@ namespace TrueRED.Modules
 				}
 			}
 		}
-
-		public string Name { get; private set; }
-		protected IAuthenticatedUser User { get; private set; }
-
-		private List<Action< bool>> _ModuleStateChangeListener = new List<Action< bool>>();
-		public List<Action<bool>> ModuleStateChangeListener
+		private List<Action<bool>> _ModuleStateChangeListener = new List<Action<bool>>();
+		public List<Action<bool>> ModuleStateChangeListener // 모듈의 상태가 바뀔 때 발생하는 이벤트입니다.
 		{
 			get
 			{
 				return _ModuleStateChangeListener;
 			}
 		}
-
 		protected Module( string name )
 		{
 			this.Name = name;
+			//TODO: 유저 새로 고치면 이쪽도 바뀌도록 리스너 등록
 			this.User = Globals.Instance.User;
 		}
 
+		/// <summary>
+		/// 새 모듈을 생성합니다.
+		/// </summary>
+		/// <param name="parser">모듈 INI</param>
+		/// <returns></returns>
 		public static Module Create( INIParser parser )
 		{
 			var running = parser.GetValue("Module", "IsRunning");
@@ -115,37 +110,33 @@ namespace TrueRED.Modules
 			if ( type == typeof( ReactorModule ).FullName )
 			{
 				module = new ReactorModule( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( ControllerModule ).FullName )
 			{
 				module = new ControllerModule( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( ReflectorModule ).FullName )
 			{
 				module = new ReflectorModule( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( SchedulerModule ).FullName )
 			{
 				module = new SchedulerModule( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( WeatherModule ).FullName )
 			{
 				module = new WeatherModule( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else if ( type == typeof( RegularTweet ).FullName )
 			{
 				module = new RegularTweet( name );
-				( ( IUseSetting ) module ).OpenSettings( parser );
 			}
 			else
 			{
 				return null;
 			}
+
+			module.OpenSettings( parser );
 
 			if ( !string.IsNullOrEmpty( running ) )
 			{
@@ -166,14 +157,16 @@ namespace TrueRED.Modules
 			parser.SetValue( "Module", "Name", Name );
 		}
 
-		void IUseSetting.OpenSettings( INIParser parser )
-		{
-			throw new NotImplementedException( );
-		}
+		public abstract void OpenSettings( INIParser parser );
+		public abstract void SaveSettings( INIParser parser );
+		public abstract void Release( );
 
-		void IUseSetting.SaveSettings( INIParser parser )
-		{
-			throw new NotImplementedException( );
-		}
+		#region Metadatas
+		public abstract string ModuleName { get; }
+		public abstract string ModuleDescription { get; }
+		public abstract Module CreateModule( object[] @params );
+		public abstract List<Display.ModuleFaceCategory> GetModuleFace( );
+		#endregion
 	}
+
 }

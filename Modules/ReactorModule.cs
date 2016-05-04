@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
+using TrueRED.Display;
 using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
@@ -14,41 +11,22 @@ using Tweetinvi.Core.Interfaces;
 // TODO: Expire기간중에 트윗하면 다른 모듈 참조하도록 설정하기?
 namespace TrueRED.Modules
 {
-	public class ReactorModule : Module, IStreamListener, IUseSetting, ITimeTask
+	public class ReactorModule : Module, IStreamListener, ITimeTask
 	{
-		public static string ModuleName { get; protected set; } = "Reactor";
-		public static string ModuleDescription { get; protected set; } = "Reaction timeline";
-		public static List<Display.ModuleFaceCategory> GetModuleFace( )
+		public override string ModuleName
 		{
-			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
-
-			var category1 = new Display.ModuleFaceCategory("Module" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
-			face.Add( category1 );
-
-			var category2 = new Display.ModuleFaceCategory("Expire" );
-			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Time" );
-			category2.Add( Display.ModuleFaceCategory.ModuleFaceTypes.Int, "Delay" );
-			face.Add( category2 );
-
-			var category3 = new Display.ModuleFaceCategory("TimeLimit" );
-			category3.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "StartTime" );
-			category3.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "EndTime" );
-			face.Add( category3 );
-
-			return face;
+			get
+			{
+				return "Reactor";
+			}
 		}
-		public static ReactorModule CreateModule( string moduleName, string StringSet, int Time, int Delay, string StartTime, string EndTime )
+
+		public override string ModuleDescription
 		{
-			var module = new ReactorModule( moduleName );
-			module.stringset = StringSet;
-			module.LoadStringsets( StringSet );
-			module.ExpireTime = Time;
-			module.ExpireDelay = Delay;
-			module.moduleWakeup = TimeSet.FromString( StartTime );
-			module.moduleSleep = TimeSet.FromString( EndTime );
-			return module;
+			get
+			{
+				return "타임라인에 반응해요";
+			}
 		}
 
 		string stringset;
@@ -65,6 +43,10 @@ namespace TrueRED.Modules
 		int ExpireTime;
 		int ExpireDelay;
 
+		public ReactorModule( ) : base( string.Empty )
+		{
+
+		}
 		public ReactorModule( string name ) : base( name )
 		{
 			this.moduleWakeup = this.moduleSleep = new TimeSet( -1 );
@@ -79,7 +61,7 @@ namespace TrueRED.Modules
 				var tags = reactor[i].Split('∥');
 				if ( tags.Length != 3 )
 				{
-					Log.Error( "Reactor.Status", string.Format( "Not correct reactor stringset '{0}'", reactor[i] ) );
+					Log.Error( this.Name, string.Format( "Not correct reactor stringset '{0}'", reactor[i] ) );
 					continue;
 				}
 				reactor_category.Add( tags[0] );
@@ -157,20 +139,20 @@ namespace TrueRED.Modules
 				switch ( category )
 				{
 					case "All":
-						Log.Print( "Reactor catch tweet (All)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+						Log.Print( this.Name, string.Format( "catch tweet (all) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 						state = TweetMatchResult.Match;
 						break;
 					case "Mention":
 						if ( status.InReplyToUserId == User.Id )
 						{
-							Log.Print( "Reactor catch tweet (Mention)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+							Log.Print( this.Name, string.Format( "catch tweet (Mention) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							state = TweetMatchResult.Match;
 						}
 						break;
 					case "Public":
 						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
 						{
-							Log.Print( "Reactor catch tweet (Public)", string.Format( "[{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+							Log.Print( this.Name, string.Format( "catch tweet (Public) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							state = TweetMatchResult.Match;
 						}
 						break;
@@ -184,7 +166,7 @@ namespace TrueRED.Modules
 						var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
 						if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
 						{
-							Log.Print( "ReactorRejected", string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
+							Log.Print( this.Name, string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
 							state = TweetMatchResult.Expire;
 						}
 						else
@@ -259,7 +241,7 @@ namespace TrueRED.Modules
 				if ( pString.Flag )
 				{
 					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
-					Log.Print( "Reactor", string.Format( "Send tweet [{0}]", result.Text ) );
+					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
 
 					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
 				}
@@ -341,15 +323,43 @@ namespace TrueRED.Modules
 
 		}
 
-		void IUseSetting.OpenSettings( INIParser path )
+		void ITimeTask.Run( )
 		{
-			stringset = path.GetValue( "Module", "ReactorStringset" );
+			while ( true )
+			{
+				if ( IsRunning )
+				{
+					lock ( ExpireUsers )
+					{
+						for ( int i = 0; i < ExpireUsers.Count; i++ )
+						{
+							var keys = new List<long>( ExpireUsers.Keys ) ;
+							var key = keys[i];
+							var item = ExpireUsers[key];
+							if ( TimeSet.Verification( new TimeSet( DateTime.Now ), item, new TimeSet( item.Hour, item.Minute + ExpireTime ) ) )
+							{
+								continue;
+							}
+							else
+							{
+								ExpireUsers.Remove( key );
+							}
+						}
+					}
+				}
+				Thread.Sleep( ExpireDelay * 60 );
+			}
+		}
 
-			var expiretime = path.GetValue("Expire", "Time");
-			var expiredelay = path.GetValue("Expire", "Delay");
+		public override void OpenSettings( INIParser parser )
+		{
+			stringset = parser.GetValue( "Module", "ReactorStringset" );
 
-			var starttime = path.GetValue("TimeLimit", "StartTime");
-			var endtime = path.GetValue("TimeLimit", "EndTime");
+			var expiretime = parser.GetValue("Expire", "Time");
+			var expiredelay = parser.GetValue("Expire", "Delay");
+
+			var starttime = parser.GetValue("TimeLimit", "StartTime");
+			var endtime = parser.GetValue("TimeLimit", "EndTime");
 
 			LoadStringsets( stringset );
 
@@ -390,46 +400,64 @@ namespace TrueRED.Modules
 			}
 		}
 
-		void IUseSetting.SaveSettings( INIParser path )
+		public override void SaveSettings( INIParser parser )
 		{
-			path.SetValue( "Module", "IsRunning", IsRunning );
-			path.SetValue( "Module", "Type", this.GetType( ).FullName );
-			path.SetValue( "Module", "Name", Name );
-			path.SetValue( "Module", "ReactorStringset", stringset );
+			parser.SetValue( "Module", "IsRunning", IsRunning );
+			parser.SetValue( "Module", "Type", this.GetType( ).FullName );
+			parser.SetValue( "Module", "Name", Name );
+			parser.SetValue( "Module", "ReactorStringset", stringset );
 
-			path.SetValue( "Expire", "Time", ExpireTime );
-			path.SetValue( "Expire", "Delay", ExpireDelay );
+			parser.SetValue( "Expire", "Time", ExpireTime );
+			parser.SetValue( "Expire", "Delay", ExpireDelay );
 
-			path.SetValue( "TimeLimit", "StartTime", moduleWakeup );
-			path.SetValue( "TimeLimit", "EndTime", moduleSleep );
+			parser.SetValue( "TimeLimit", "StartTime", moduleWakeup );
+			parser.SetValue( "TimeLimit", "EndTime", moduleSleep );
 		}
 
-		void ITimeTask.Run( )
+		public override void Release( )
 		{
-			while ( true )
-			{
-				if ( IsRunning )
-				{
-					lock ( ExpireUsers )
-					{
-						for ( int i = 0; i < ExpireUsers.Count; i++ )
-						{
-							var keys = new List<long>( ExpireUsers.Keys ) ;
-							var key = keys[i];
-							var item = ExpireUsers[key];
-							if ( TimeSet.Verification( new TimeSet( DateTime.Now ), item, new TimeSet( item.Hour, item.Minute + ExpireTime ) ) )
-							{
-								continue;
-							}
-							else
-							{
-								ExpireUsers.Remove( key );
-							}
-						}
-					}
-				}
-				Thread.Sleep( ExpireDelay * 60 );
-			}
+			throw new NotImplementedException( );
+		}
+
+		public override Module CreateModule( object[] @params )
+		{
+			var moduleName = (string)@params[0];
+			var StringSet = (string)@params[0];
+			var Time = (int)@params[0];
+			var Delay = (int)@params[0];
+			var StartTime = (string)@params[0];
+			var EndTime = (string)@params[0];
+
+			var module = new ReactorModule( moduleName );
+			module.stringset = StringSet;
+			module.LoadStringsets( StringSet );
+			module.ExpireTime = Time;
+			module.ExpireDelay = Delay;
+			module.moduleWakeup = TimeSet.FromString( StartTime );
+			module.moduleSleep = TimeSet.FromString( EndTime );
+			return module;
+		}
+
+		public override List<ModuleFaceCategory> GetModuleFace( )
+		{
+			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
+
+			var category1 = new ModuleFaceCategory("Module" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			face.Add( category1 );
+
+			var category2 = new ModuleFaceCategory("Expire" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Time" );
+			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Delay" );
+			face.Add( category2 );
+
+			var category3 = new ModuleFaceCategory("TimeLimit" );
+			category3.Add( ModuleFaceCategory.ModuleFaceTypes.String, "StartTime" );
+			category3.Add( ModuleFaceCategory.ModuleFaceTypes.String, "EndTime" );
+			face.Add( category3 );
+
+			return face;
 		}
 	}
 }

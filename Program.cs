@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TrueRED.Framework;
 using TrueRED.Modules;
 using Tweetinvi;
-using Tweetinvi.Core.Interfaces;
 using Tweetinvi.Core.Interfaces.Streaminvi;
 
 namespace TrueRED
@@ -62,27 +60,18 @@ namespace TrueRED
 
 			#region Initialize Modules
 
-			var module_settings = Directory.GetFiles( "Modules" );
-			foreach ( var item in module_settings )
-			{
-				if ( item.ToLower( ).EndsWith( ".ini" ) )
-				{
-					var parser = new INIParser(item);
-					var module = Module.Create( parser );
-					if ( module != null ) Globals.Instance.Modules.Add( module );
-				}
-			}
+			ModuleManager.LoadAllModules( "Modules" );
 
 			#endregion
 
-			foreach ( var item in Globals.Instance.Modules )
+			foreach ( var item in ModuleManager.Modules )
 			{
 				OnModuleAdd_StartTimeTask( item );
 			}
-			var stream = CreateStream( Globals.Instance.Modules );
+			var stream = CreateStream( ModuleManager.Modules );
 
 
-			Globals.Instance.Modules.OnModuleAttachLiestner.Add( delegate ( Module module )
+			ModuleManager.Modules.OnModuleAttachLiestner.Add( delegate ( Module module )
 			{
 				OnModuleAdd_StartTimeTask( module );
 				OnModuleAdd_AttachStream( stream, module );
@@ -90,10 +79,9 @@ namespace TrueRED
 
 			new Display.AppConsole( ).ShowDialog( );
 
-			foreach ( var item in Globals.Instance.Modules )
+			foreach ( var module in ModuleManager.Modules )
 			{
-				var module = (IUseSetting)item;
-				var parser = new INIParser(Path.Combine( "Modules", item.Name + ".ini" ));
+				var parser = new INIParser(Path.Combine( "Modules", module.Name + ".ini" ));
 				module.SaveSettings( parser );
 				parser.Save( );
 			}
@@ -112,9 +100,9 @@ namespace TrueRED
 				Task.Factory.StartNew( ( ) => timetask.Run( ) );
 			}
 		}
-		private static void OnModuleAdd_AttachStream( IUserStream userStream, Module module)
+		private static void OnModuleAdd_AttachStream( IUserStream userStream, Module module )
 		{
-			if( module is IStreamListener)
+			if ( module is IStreamListener )
 			{
 				var streamlistener = (IStreamListener)module;
 				userStream.TweetCreatedByAnyone += streamlistener.TweetCreateByAnyone;
@@ -169,7 +157,7 @@ namespace TrueRED
 			Log.Http( "Program", "Stream is running now" );
 			return userStream;
 		}
-		
+
 
 
 		#region Test Modules

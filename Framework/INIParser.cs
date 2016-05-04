@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using IniParser;
 using IniParser.Model;
 
@@ -27,7 +22,7 @@ namespace TrueRED.Framework
 					@out += string.Format( "\n    [{0}]", section.SectionName );
 					foreach ( var key in section.Keys )
 					{
-						@out += string.Format( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName]);
+						@out += string.Format( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName] );
 					}
 				}
 				Log.Debug( "INIParser", @out );
@@ -93,7 +88,7 @@ namespace TrueRED.Framework
 
 		internal void Save( )
 		{
-			new FileIniDataParser().WriteFile( iniPath, data, Encoding.UTF8 );
+			new FileIniDataParser( ).WriteFile( iniPath, data, Encoding.UTF8 );
 		}
 
 		#region FileIniDataParser

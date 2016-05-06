@@ -69,5 +69,10 @@ namespace TrueRED.Framework
 				return new string[0];
 			}
 		}
+
+		internal static void ClearStringSets( )
+		{
+			_list.Clear( );
+		}
 	}
 }

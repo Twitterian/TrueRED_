@@ -231,7 +231,7 @@ namespace TrueRED.Modules
 			parser.SetValue( "Module", "OwnerID", OwnerID );
 		}
 
-		public override void Release( )
+		protected override void Release( )
 		{
 
 		}

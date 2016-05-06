@@ -14,6 +14,7 @@ namespace TrueRED.Display
 	{
 		private readonly MaterialSkinManager materialSkinManager;
 		List<Type> types = null;
+		private string LogHeader { get; set; } = "MakeModule";
 
 		public MakeModule( )
 		{
@@ -38,13 +39,13 @@ namespace TrueRED.Display
 				var factory = ( Module ) Activator.CreateInstance( types[i] );
 				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
 					types[i],
-					factory.GetModuleFace(),
+					factory.GetModuleFace( ),
 					delegate ( Type t, object[] @params )
 					{
 						var instance = factory.CreateModule(@params);
-                        if ( instance != null )
+						if ( instance != null )
 						{
-							Framework.Log.Print( "ModuleMaked", instance.ToString( ) );
+							Framework.Log.Print( LogHeader, string.Format( "New {0} Module [{1}] maked.", instance.GetType( ).Name, instance.Name ) );
 							Framework.ModuleManager.Modules.Add( instance );
 						}
 						this.Close( );

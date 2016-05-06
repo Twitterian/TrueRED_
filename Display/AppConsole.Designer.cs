@@ -37,7 +37,7 @@ namespace TrueRED.Display
 			this.label_module = new MaterialSkin.Controls.MaterialLabel();
 			this.button_rmvModule = new MaterialSkin.Controls.MaterialFlatButton();
 			this.materialFlatButton1 = new MaterialSkin.Controls.MaterialFlatButton();
-			this.materialFlatButton2 = new MaterialSkin.Controls.MaterialFlatButton();
+			this.button_stringset_reload = new MaterialSkin.Controls.MaterialFlatButton();
 			this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
 			this.button_module_reload = new MaterialSkin.Controls.MaterialFlatButton();
 			this.SuspendLayout();
@@ -169,22 +169,22 @@ namespace TrueRED.Display
 			this.materialFlatButton1.UseVisualStyleBackColor = true;
 			this.materialFlatButton1.Click += new System.EventHandler(this.button_addModule_Click);
 			// 
-			// materialFlatButton2
+			// button_stringset_reload
 			// 
-			this.materialFlatButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.materialFlatButton2.AutoSize = true;
-			this.materialFlatButton2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.materialFlatButton2.Depth = 0;
-			this.materialFlatButton2.Location = new System.Drawing.Point(263, 314);
-			this.materialFlatButton2.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-			this.materialFlatButton2.MouseState = MaterialSkin.MouseState.HOVER;
-			this.materialFlatButton2.Name = "materialFlatButton2";
-			this.materialFlatButton2.Primary = false;
-			this.materialFlatButton2.Size = new System.Drawing.Size(63, 36);
-			this.materialFlatButton2.TabIndex = 2;
-			this.materialFlatButton2.Text = "Reload";
-			this.materialFlatButton2.UseVisualStyleBackColor = true;
-			this.materialFlatButton2.Click += new System.EventHandler(this.button_rmvModule_Click);
+			this.button_stringset_reload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.button_stringset_reload.AutoSize = true;
+			this.button_stringset_reload.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.button_stringset_reload.Depth = 0;
+			this.button_stringset_reload.Location = new System.Drawing.Point(263, 314);
+			this.button_stringset_reload.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+			this.button_stringset_reload.MouseState = MaterialSkin.MouseState.HOVER;
+			this.button_stringset_reload.Name = "button_stringset_reload";
+			this.button_stringset_reload.Primary = false;
+			this.button_stringset_reload.Size = new System.Drawing.Size(63, 36);
+			this.button_stringset_reload.TabIndex = 2;
+			this.button_stringset_reload.Text = "Reload";
+			this.button_stringset_reload.UseVisualStyleBackColor = true;
+			this.button_stringset_reload.Click += new System.EventHandler(this.button_stringset_reload_click);
 			// 
 			// materialLabel1
 			// 
@@ -223,7 +223,7 @@ namespace TrueRED.Display
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(342, 528);
 			this.Controls.Add(this.materialLabel1);
-			this.Controls.Add(this.materialFlatButton2);
+			this.Controls.Add(this.button_stringset_reload);
 			this.Controls.Add(this.label_module);
 			this.Controls.Add(this.materialFlatButton1);
 			this.Controls.Add(this.button_module_reload);
@@ -249,7 +249,7 @@ namespace TrueRED.Display
 		private MaterialLabel label_module;
 		private MaterialFlatButton button_rmvModule;
 		private MaterialFlatButton materialFlatButton1;
-		private MaterialFlatButton materialFlatButton2;
+		private MaterialFlatButton button_stringset_reload;
 		private MaterialLabel materialLabel1;
 		private MaterialFlatButton button_module_reload;
 	}

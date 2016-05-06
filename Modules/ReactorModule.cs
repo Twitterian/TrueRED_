@@ -243,6 +243,7 @@ namespace TrueRED.Modules
 					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
 					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
 
+					if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );
 					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
 				}
 			}
@@ -325,7 +326,7 @@ namespace TrueRED.Modules
 
 		void ITimeTask.Run( )
 		{
-			while ( true )
+			while ( !Disposed )
 			{
 				if ( IsRunning )
 				{
@@ -414,9 +415,8 @@ namespace TrueRED.Modules
 			parser.SetValue( "TimeLimit", "EndTime", moduleSleep );
 		}
 
-		public override void Release( )
+		protected override void Release( )
 		{
-			throw new NotImplementedException( );
 		}
 
 		public override Module CreateModule( object[] @params )

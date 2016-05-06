@@ -43,7 +43,7 @@ namespace TrueRED.Modules
 
 		void ITimeTask.Run( )
 		{
-			while ( true )
+			while ( !Disposed )
 			{
 				if ( IsRunning )
 				{
@@ -94,9 +94,9 @@ namespace TrueRED.Modules
 			parser.SetValue( "Cycle", "Variation", variation );
 		}
 
-		public override void Release( )
+		protected override void Release( )
 		{
-			throw new NotImplementedException( );
+
 		}
 
 		public override Module CreateModule( object[] @params )

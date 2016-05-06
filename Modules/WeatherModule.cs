@@ -153,9 +153,9 @@ namespace TrueRED.Modules
 			parser.SetValue( "Module", "Name", Name );
 		}
 
-		public override void Release( )
+		protected override void Release( )
 		{
-			throw new NotImplementedException( );
+
 		}
 
 		public override Module CreateModule( object[] @params )

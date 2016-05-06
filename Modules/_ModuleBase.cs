@@ -79,6 +79,7 @@ namespace TrueRED.Modules
 				}
 			}
 		}
+		public bool Disposed { get; private set; }
 		private List<Action<bool>> _ModuleStateChangeListener = new List<Action<bool>>();
 		public List<Action<bool>> ModuleStateChangeListener // 모듈의 상태가 바뀔 때 발생하는 이벤트입니다.
 		{
@@ -159,7 +160,12 @@ namespace TrueRED.Modules
 
 		public abstract void OpenSettings( INIParser parser );
 		public abstract void SaveSettings( INIParser parser );
-		public abstract void Release( );
+		protected abstract void Release( );
+		public void Dispose( )
+		{
+			Disposed = true;
+			Release( );
+		}
 
 		#region Metadatas
 		public abstract string ModuleName { get; }

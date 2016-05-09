@@ -5,6 +5,7 @@ using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
+using Tweetinvi.Core.Parameters;
 
 namespace TrueRED.Modules
 {
@@ -96,10 +97,10 @@ namespace TrueRED.Modules
 		{
 			var tweet = args.Tweet;
 
-			if ( tweet.CreatedBy.Id == User.Id ) return;
+			if ( tweet.CreatedBy.Id == Globals.Instance.User.Id ) return;
 			if ( tweet.CreatedBy.Id != OwnerID ) return;
 			if ( tweet.IsRetweet == true ) return;
-			if ( tweet.InReplyToUserId != User.Id ) return;
+			if ( tweet.InReplyToUserId != Globals.Instance.User.Id ) return;
 
 			var modules = ModuleManager.Modules;
 
@@ -152,7 +153,11 @@ namespace TrueRED.Modules
 			{
 				result += string.Format( "{0} : {1}\n", modules[i].Name, modules[i].IsRunning.ToString( ) );
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}", tweet.CreatedBy.ScreenName, result ), tweet.Id );
+
+			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} {1}", tweet.CreatedBy.ScreenName, result ), new PublishTweetOptionalParameters()
+			{
+				InReplyToTweetId = tweet.Id
+			});
 		}
 
 		private void GoNyang( ITweet tweet )
@@ -162,8 +167,12 @@ namespace TrueRED.Modules
 			{
 				module.IsRunning = true;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
-			Log.Debug( this.Name, "All Module Activated" );
+
+			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} {1}개의 모듈을 활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), new PublishTweetOptionalParameters()
+			{
+				InReplyToTweetId = tweet.Id
+			});
+			Log.Debug( this.Name, "Controller에 의해 모든 모듈이 활성화되었습니다." );
 		}
 
 		private void StopNyang( ITweet tweet )
@@ -173,22 +182,34 @@ namespace TrueRED.Modules
 			{
 				module.IsRunning = false;
 			}
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} {1}개의 모듈을 비활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), tweet.Id );
-			Log.Debug( this.Name, "All Module Deactivated" );
+
+			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} {1}개의 모듈을 비활성화했어", tweet.CreatedBy.ScreenName, modules.Count ), new PublishTweetOptionalParameters()
+			{
+				InReplyToTweetId = tweet.Id
+			});
+			Log.Debug( this.Name, "Controller에 의해 모든 모듈이 비활성화되었습니다." );
 		}
 
 		private void GoNyang( ITweet tweet, Module module )
 		{
 			module.IsRunning = true;
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
-			Log.Debug( this.Name, module.Name + " Module Activated" );
+
+			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} 모듈[{1}]을 활성화했어", tweet.CreatedBy.ScreenName, module.Name ), new PublishTweetOptionalParameters()
+			{
+				InReplyToTweetId = tweet.Id
+			});
+			Log.Debug( this.Name, module.Name + " 모듈이 활성화되었습니다." );
 		}
 
 		private void StopNyang( ITweet tweet, Module module )
 		{
 			module.IsRunning = false;
-			Tweet.PublishTweetInReplyTo( string.Format( "@{0} 모듈[{1}]을 비활성화했어", tweet.CreatedBy.ScreenName, module.Name ), tweet.Id );
-			Log.Debug( this.Name, module.Name + " Module Deactivated" );
+
+			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} 모듈[{1}]을 비활성화했어", tweet.CreatedBy.ScreenName, module.Name ), new PublishTweetOptionalParameters()
+			{
+				InReplyToTweetId = tweet.Id
+			});
+			Log.Debug( this.Name, module.Name + " 모듈이 비활성화되었습니다." );
 		}
 
 		void IStreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )

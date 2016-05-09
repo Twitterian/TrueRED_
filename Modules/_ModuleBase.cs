@@ -62,7 +62,6 @@ namespace TrueRED.Modules
 	public abstract class Module
 	{
 		public string Name { get; protected set; } // 모듈의 식별용 이름입니다.
-		protected IAuthenticatedUser User { get; private set; } // 로그인된 유저 정보입니다.
 		private bool _IsRunning;
 		public bool IsRunning // 모듈이 현재 켜져있는지 상태를 반환합니다.
 		{
@@ -91,8 +90,6 @@ namespace TrueRED.Modules
 		protected Module( string name )
 		{
 			this.Name = name;
-			//TODO: 유저 새로 고치면 이쪽도 바뀌도록 리스너 등록
-			this.User = Globals.Instance.User;
 		}
 
 		/// <summary>

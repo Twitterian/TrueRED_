@@ -112,7 +112,16 @@ namespace TrueRED.Framework
 			Modules.OnModuleAttachLiestner.Add( OnModuleAdd_AttachStream );
 			Modules.OnModuleDetachLiestner.Add( OnModuleAdd_DetachStream );
 		}
-
+		internal static void ReloadStream()
+		{
+			if ( MainStream != null )
+			{
+				SuspendStream( );
+				if ( MainStream.StreamState == Tweetinvi.Core.Enum.StreamState.Running ) MainStream.StopStream( );
+				ResumeStream( );
+				MainStream = CreateStream( );
+			}
+		}
 
 		private static void OnModuleAdd_AttachStream( Module module )
 		{

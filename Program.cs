@@ -12,6 +12,7 @@ namespace TrueRED
 {
 	class Program
 	{
+		private const string LogHeader = "Program";
 
 		static void Main( string[] args )
 		{
@@ -52,12 +53,33 @@ namespace TrueRED
 			string consumerSecret = setting.GetValue( AuthData, "CconsumerSecret" );
 			string accessToken = setting.GetValue( AuthData, "AccessToken" );
 			string accessSecret = setting.GetValue( AuthData, "AccessSecret" );
-			Auth.SetUserCredentials( consumerKey, consumerSecret, accessToken, accessSecret );
-			//TODO: User가 null일 경우의 대처
-			var user = Globals.Instance.User;
-			Log.Http( "UserCredentials", string.Format( "{0}({1}) [{2}]", user.Name, user.ScreenName, user.Id ) );
+			if (
+				string.IsNullOrEmpty( consumerKey ) ||
+				string.IsNullOrEmpty( consumerSecret ) ||
+				string.IsNullOrEmpty( accessToken ) ||
+				string.IsNullOrEmpty( accessSecret ) )
+			{
+				Log.Error( LogHeader, "유저 인증 정보를 찾을 수 없습니다. 토큰 발급 창으로 이동합니다." );
+				var frm = new Display.Authenticate();
+				frm.ShowDialog( );
+				if(frm.Result == true)
+				{
+					
+				}
+				else
+				{
+					Log.Error( LogHeader, "유저 인증에 실패했습니다. 프로그램을 종료합니다." );
+					Exit( );
+					return;
+				}
+			}
+			else
+			{
+				//TODO: User가 null일 경우의 대처
+				Globals.Instance.Initialize( consumerKey, consumerSecret, accessToken, accessSecret );
+			}
 			#endregion
-			
+
 			ModuleManager.Initialize( );
 			ModuleManager.LoadAllModules( "Modules" );
 
@@ -69,13 +91,9 @@ namespace TrueRED
 				module.SaveSettings( parser );
 				parser.Save( );
 			}
+			Exit( );
+        }
 
-			setting.Save( );
-
-			Console.WriteLine( "종료하시려면 아무 키나 누르세요." );
-			Console.Read( );
-		}
-		
 		static void InitDirectories( )
 		{
 			var settings = Path.Combine( Directory.GetCurrentDirectory( ), "Modules" ) ;
@@ -90,7 +108,14 @@ namespace TrueRED
 				Directory.CreateDirectory( stringsets );
 			}
 		}
-		
+
+		static void Exit( )
+		{
+			Console.WriteLine( "" );
+			Log.Print(LogHeader, "종료하시려면 아무 키나 누르세요." );
+			Console.Read( );
+		}
+
 		#region Test Modules
 
 		static void WindowDebugMode( )

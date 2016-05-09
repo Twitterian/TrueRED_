@@ -65,7 +65,7 @@ namespace TrueRED.Modules
 						DateTime.Now.Minute == item.Item1.Minute &&
 						DateTime.Now.Second == 0 )
 						{
-							var tweet= Tweet.PublishTweet( item.Item2 );
+							var tweet= Globals.Instance.User.PublishTweet( item.Item2 );
 							Log.Print( this.Name, string.Format( "Tweeted [{0} : {1}]", tweet.Text, tweet.CreatedAt.ToString( ) ) );
 						}
 					}

@@ -121,5 +121,10 @@ namespace TrueRED.Display
 			StringSetsManager.ClearStringSets( );
 			StringSetsManager.LoadStringSets( );
 		}
+
+		private void button_changetwitterID_Click( object sender, EventArgs e )
+		{
+			new Authenticate( ).ShowDialog( );
+		}
 	}
 }

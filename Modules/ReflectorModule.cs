@@ -51,7 +51,7 @@ namespace TrueRED.Modules
 		void IStreamListener.FollowedByUser( object sender, UserFollowedEventArgs args )
 		{
 			if ( !IsRunning ) return;
-			User.FollowUser( args.User );
+			Globals.Instance.User.FollowUser( args.User );
 			Log.Http( this.Name, string.Format( "Auto followed {0}({1})", args.User.Name, args.User.ScreenName ) );
 		}
 

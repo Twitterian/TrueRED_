@@ -9,6 +9,7 @@ namespace TrueRED.Framework
 	{
 		private string iniPath;
 		private IniData data;
+		private const string LogHeader = "INIParser";
 
 		public INIParser( string path )
 		{
@@ -25,11 +26,11 @@ namespace TrueRED.Framework
 						@out += string.Format( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName] );
 					}
 				}
-				Log.Debug( "INIParser", @out );
+				Log.Debug( LogHeader, @out );
 			}
 			else
 			{
-				Log.Debug( "INIParser", string.Format( "[{0}] is not correct directory. new INI file generated.", iniPath ) );
+				Log.Debug( LogHeader, string.Format( "[{0}] is not correct directory. new INI file generated.", iniPath ) );
 				data = new IniData( );
 			}
 		}
@@ -88,6 +89,7 @@ namespace TrueRED.Framework
 
 		internal void Save( )
 		{
+			Log.Debug( LogHeader, string.Format( "Write INI - [{0}]", iniPath ) );
 			new FileIniDataParser( ).WriteFile( iniPath, data, Encoding.UTF8 );
 		}
 

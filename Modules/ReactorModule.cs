@@ -7,6 +7,7 @@ using TrueRED.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
+using Tweetinvi.Core.Parameters;
 
 // TODO: Expire기간중에 트윗하면 다른 모듈 참조하도록 설정하기?
 namespace TrueRED.Modules
@@ -143,7 +144,7 @@ namespace TrueRED.Modules
 						state = TweetMatchResult.Match;
 						break;
 					case "Mention":
-						if ( status.InReplyToUserId == User.Id )
+						if ( status.InReplyToUserId == Globals.Instance.User.Id )
 						{
 							Log.Print( this.Name, string.Format( "catch tweet (Mention) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
 							state = TweetMatchResult.Match;
@@ -191,7 +192,7 @@ namespace TrueRED.Modules
 			if ( !IsRunning ) return;
 			var tweet = args.Tweet;
 			if ( !Verification( ) ) return;
-			if ( tweet.CreatedBy.Id == User.Id ) return;
+			if ( tweet.CreatedBy.Id == Globals.Instance.User.Id ) return;
 			if ( tweet.IsRetweet == true ) return;
 
 			var cases = new List<int>();
@@ -240,7 +241,10 @@ namespace TrueRED.Modules
 				var pString = ParseEscapeString(@out, tweet);
 				if ( pString.Flag )
 				{
-					var result = Tweet.PublishTweetInReplyTo(pString.String,pString.Id);
+					var result = Globals.Instance.User.PublishTweet( pString.String, new PublishTweetOptionalParameters()
+					{
+						InReplyToTweetId = pString.Id
+					});
 					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
 
 					if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );

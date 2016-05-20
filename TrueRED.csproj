@@ -110,9 +110,7 @@
     <Compile Include="Display\MakeModule.Designer.cs">
       <DependentUpon>MakeModule.cs</DependentUpon>
     </Compile>
-    <Compile Include="Display\ModuleFace.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Display\ModuleFace.cs" />
     <Compile Include="Framework\Console.cs" />
     <Compile Include="Framework\Globals.cs" />
     <Compile Include="Framework\HttpCore\HttpCommunicator.cs" />

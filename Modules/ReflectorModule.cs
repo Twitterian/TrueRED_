@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TrueRED.Display;
 using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
@@ -52,7 +51,7 @@ namespace TrueRED.Modules
 		{
 			if ( !IsRunning ) return;
 			Globals.Instance.User.FollowUser( args.User );
-			Log.Http( this.Name, string.Format( "Auto followed {0}({1})", args.User.Name, args.User.ScreenName ) );
+			Log.Http( this.Name, "Auto followed {0}({1})", args.User.Name, args.User.ScreenName );
 		}
 
 		void IStreamListener.FollowedUser( object sender, UserFollowedEventArgs args )
@@ -139,7 +138,7 @@ namespace TrueRED.Modules
 			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new ModuleFaceCategory("Module" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "모듈 이름" );
 			face.Add( category1 );
 
 			return face;

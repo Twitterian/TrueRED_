@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using Newtonsoft.Json.Linq;
@@ -11,63 +10,65 @@ namespace TrueRED.Framework.HttpRepeaters
 	/// OpenWeatherMap API
 	///	http://openweathermap.org/
 	/// </summary>
-	class Weather : HttpRepeater
+	public class Weather : HttpRepeater
 	{
-		const string HOST = "http://api.openweathermap.org/data/2.5/weather";
-		const string APIKEY = "acb233fcbbd0633a6fcab3b58d93683a";
+		private const string HOST = "http://api.openweathermap.org/data/2.5/weather";
+		private const string APIKEY = "acb233fcbbd0633a6fcab3b58d93683a";
 
 		/// <summary>
 		/// 대상 지역의 날씨를 얻어옵니다.
 		/// </summary>
 		/// <param name="city">도시</param>
 		/// <param name="callback"></param>
-		static public void getWeather( string city, Action<WeatherResult> callback )
+		public static void getWeather( string city, Action<WeatherResult> callback )
 		{
-			var parameters = new Dictionary<string, string>();
+			var parameters = new HttpParameters();
 			parameters.Add( "APPID", APIKEY );
 			parameters.Add( "q", city );
-			HttpCommunicator.Get( HOST, null, parameters, delegate ( string response )
-			{
-				JObject js = JObject.Parse(response);
+			HttpCommunicator.Get( HOST, null, parameters,
+                (response) => {
+				    JObject js = JObject.Parse(response);
 
-				var temp = js["main"]["temp"].ToString();
+				    var temp = js["main"]["temp"].ToString();
 
-				var obj = new WeatherResult();
-				obj.tempreture = K2C( float.Parse( temp ) ).ToString( "0.##" );
-				callback( obj );
-
-			}, delegate ( Exception e, Action retry )
-			{
-				Log.Error( "Weather", string.Format( "ERROR {0} : retry after 3sec", e.ToString( ) ) );
-				Thread.Sleep( 3000 );
-				retry( );
-			} );
+				    var obj = new WeatherResult();
+				    obj.tempreture = K2C( float.Parse( temp ) ).ToString( "0.##" );
+                    if (callback != null)
+                        callback.Invoke(obj);
+			    },
+                (e, retry ) => {
+				    Log.Error( "Weather", "ERROR {0} : retry after 3sec", e );
+                    Thread.Sleep(3000);
+                    if (retry != null)
+                        retry.Invoke();
+			    } );
 		}
 
-		static public void getWeather( double Latitude, double Longitude, Action<WeatherResult> callback )
+		public static void getWeather( double Latitude, double Longitude, Action<WeatherResult> callback )
 		{
-			var parameters = new Dictionary<string, string>();
+			var parameters = new HttpParameters();
 			parameters.Add( "APPID", APIKEY );
-			parameters.Add( "lat", Latitude.ToString( ) );
-			parameters.Add( "lon", Longitude.ToString( ) );
-			HttpCommunicator.Get( HOST, null, parameters, delegate ( string response )
-			{
-				JObject js = JObject.Parse(response);
+			parameters.Add( "lat", Latitude );
+			parameters.Add( "lon", Longitude );
+			HttpCommunicator.Get( HOST, null, parameters,
+                ( response ) => {
+                    JObject js = JObject.Parse(response);
 
-				var temp = js["main"]["temp"].ToString();
-				var weat = js["weather"][0]["main"].ToString();
+                    var temp = js["main"]["temp"].ToString();
+                    var weat = js["weather"][0]["main"].ToString();
 
-				var obj = new WeatherResult();
-				obj.tempreture = K2C( float.Parse( temp ) ).ToString( "0.##" );
-				obj.weather = weat;
-				callback( obj );
-
-			}, delegate ( Exception e, Action retry )
-			{
-				Log.Error( "Weather", string.Format( "ERROR {0} : retry after 3sec", e.ToString( ) ) );
-				Thread.Sleep( 3000 );
-				retry( );
-			} );
+                    var obj = new WeatherResult();
+                    obj.tempreture = K2C(float.Parse(temp)).ToString("0.##");
+                    obj.weather = weat;
+                    if (callback != null)
+                        callback.Invoke(obj);
+                },
+                (e, retry) => {
+                    Log.Error("Weather", "ERROR {0} : retry after 3sec", e);
+                    Thread.Sleep(3000);
+                    if (retry != null)
+                        retry.Invoke();
+                });
 		}
 
 		public struct WeatherResult

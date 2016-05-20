@@ -16,7 +16,7 @@ namespace TrueRED.Display
 	public partial class Authenticate : Form
 	{
 		private IAuthenticationContext authenticationContext;
-		public bool Result { get; private set; } = false;
+		public bool Result { get; private set; }
 
 		public Authenticate( )
 		{

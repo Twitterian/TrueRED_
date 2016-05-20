@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using TrueRED.Modules;
 using Tweetinvi.Core.Interfaces.Streaminvi;
 
 namespace TrueRED.Framework
 {
-	class ModuleManager
+	public static class ModuleManager
 	{
-		public static ModuleList<Module> Modules { get; private set; } = new ModuleList<Module>( ); // 어플리케이션에 로딩된 모듈 목록
-		public static string ModulePath;
-		private static IUserStream MainStream { get; set; }
+        public static readonly ModuleList<Module> Modules = new ModuleList<Module>();
+
+		public static string ModulePath { get; set; }
+		private static IUserStream MainStream;
 		public static bool StreamState { get; private set; }
-		private static bool StreamPaused { get; set; }
-		public static string LogHeader { get; private set; } = "ModuleManager";
+		private static bool StreamPaused;
+		public const string LogHeader = "ModuleManager";
 
 		public static bool LoadAllModules( string modulePath )
 		{
@@ -48,13 +47,11 @@ namespace TrueRED.Framework
 			var module = Module.Create( parser );
 			if ( module == null )
 			{
-				Log.Error( LogHeader,
-				string.Format( "모듈 이름 [{0}]를 로드할 수 없었습니다", module.Name ) );
+				Log.Error( LogHeader, "모듈 이름 [{0}]를 로드할 수 없었습니다", module.Name );
 			}
 			if ( Modules.Find( item => item.Name == module.Name ) != null )
 			{
-				Log.Error( LogHeader,
-				string.Format( "모듈 이름 [{0}]가 이미 존재합니다. 뒤따른 모듈은 로드되지 않습니다.", module.Name ) );
+				Log.Error( LogHeader, "모듈 이름 [{0}]가 이미 존재합니다. 뒤따른 모듈은 로드되지 않습니다.", module.Name );
 			}
 			else
 			{
@@ -86,7 +83,7 @@ namespace TrueRED.Framework
 					if ( item.Contains( moduleName ) )
 					{
 						File.Delete( item );
-						Log.Debug( LogHeader, string.Format( "Deleted file [{0}]", item ) );
+						Log.Debug( LogHeader, "Deleted file [{0}]", item );
 					}
 				}
 			}
@@ -216,8 +213,8 @@ namespace TrueRED.Framework
 
 	public class ModuleList<T> : List<T>
 	{
-		public List<Action<T>> OnModuleAttachLiestner { get; private set; } = new List<Action<T>>( );
-		public List<Action<T>> OnModuleDetachLiestner { get; private set; } = new List<Action<T>>( );
+		public readonly List<Action<T>> OnModuleAttachLiestner = new List<Action<T>>( );
+		public readonly List<Action<T>> OnModuleDetachLiestner = new List<Action<T>>( );
 
 		public new void Add( T item )
 		{

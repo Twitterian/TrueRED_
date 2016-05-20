@@ -3,12 +3,11 @@ using System.Diagnostics;
 
 namespace TrueRED.Framework
 {
-	public class Log
+	public static class Log
 	{
-		public static bool IsInited { get; private set; }
-		public static bool LogTrace { get; private set; }
+		private static bool IsInited;
 
-		public static void Init( bool LogTrace = false )
+		public static void Init( )
 		{
 			try
 			{
@@ -22,41 +21,41 @@ namespace TrueRED.Framework
 			}
 		}
 
-		public static void Print( string tag, string message )
+		public static void Print( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.White;
-			Output( tag, message );
+			Output( tag, message, parameters );
 		}
-		public static void Http( string tag, string message )
+		public static void Http( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Output( tag, message );
+			Output( tag, message, parameters );
 		}
-		public static void Debug( string tag, string message )
+		public static void Debug( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.Green;
-			Output( tag, message );
+			Output( tag, message, parameters );
 		}
-		public static void Warning( string tag, string message )
+		public static void Warning( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			Output( tag, message );
+			Output( tag, message, parameters );
 		}
-		public static void Error( string tag, string message )
+		public static void Error( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			Output( tag, message );
+			Output( tag, message, parameters );
 		}
-		public static void CriticalError( string tag, string message )
+		public static void CriticalError( string tag, string message, params object[] parameters )
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			Output( tag, message );
+			Output( tag, message, parameters );
 			//TODO: 크리티컬 에러 메세지 (팝업 등으로)
 		}
 
-		private static void Output( string tag, string message )
+		private static void Output( string tag, string message, params object[] parameters )
 		{
-			string log = string.Format( "{0} : {1}", tag, message );
+			string log = string.Format( "{0} : {1}", tag, string.Format(message, parameters) );
 			if ( IsInited )
 			{
 				Trace.WriteLine( log );
@@ -75,8 +74,9 @@ namespace TrueRED.Framework
 				Trace.Write( new StackTrace( true ) );
 			}
 			else
-			{
-				Console.WriteLine( string.Format( "Inflate stacktrace() : \n{0}", new StackTrace( true ) ) );
+            {
+                Console.WriteLine("Inflate stacktrace() :");
+                Console.WriteLine(new StackTrace(true));
 			}
 		}
 

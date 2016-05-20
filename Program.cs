@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using TrueRED.Framework;
-using TrueRED.Modules;
-using Tweetinvi;
-using Tweetinvi.Core.Interfaces.Streaminvi;
 
 namespace TrueRED
 {

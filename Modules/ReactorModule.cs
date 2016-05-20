@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using TrueRED.Display;
 using TrueRED.Framework;
-using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
 using Tweetinvi.Core.Parameters;
@@ -62,7 +61,7 @@ namespace TrueRED.Modules
 				var tags = reactor[i].Split('∥');
 				if ( tags.Length != 3 )
 				{
-					Log.Error( this.Name, string.Format( "Not correct reactor stringset '{0}'", reactor[i] ) );
+					Log.Error( this.Name, "Not correct reactor stringset '{0}'", reactor[i] );
 					continue;
 				}
 				reactor_category.Add( tags[0] );
@@ -140,20 +139,20 @@ namespace TrueRED.Modules
 				switch ( category )
 				{
 					case "All":
-						Log.Print( this.Name, string.Format( "catch tweet (all) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+						Log.Print( this.Name, "catch tweet (all) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
 						state = TweetMatchResult.Match;
 						break;
 					case "Mention":
 						if ( status.InReplyToUserId == Globals.Instance.User.Id )
 						{
-							Log.Print( this.Name, string.Format( "catch tweet (Mention) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+							Log.Print( this.Name, "catch tweet (Mention) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
 							state = TweetMatchResult.Match;
 						}
 						break;
 					case "Public":
 						if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
 						{
-							Log.Print( this.Name, string.Format( "catch tweet (Public) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text ) );
+							Log.Print( this.Name, "catch tweet (Public) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
 							state = TweetMatchResult.Match;
 						}
 						break;
@@ -167,7 +166,7 @@ namespace TrueRED.Modules
 						var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
 						if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
 						{
-							Log.Print( this.Name, string.Format( "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) ) );
+							Log.Print( this.Name, "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) );
 							state = TweetMatchResult.Expire;
 						}
 						else
@@ -245,7 +244,7 @@ namespace TrueRED.Modules
 					{
 						InReplyToTweetId = pString.Id
 					});
-					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
+					Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 
 					if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );
 					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
@@ -447,18 +446,18 @@ namespace TrueRED.Modules
 			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new ModuleFaceCategory("Module" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			category1.Add( ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "문자셋" );
 			face.Add( category1 );
 
 			var category2 = new ModuleFaceCategory("Expire" );
-			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Time" );
-			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Delay" );
+			category2.Add( ModuleFaceTypes.Int, "Time" );
+			category2.Add( ModuleFaceTypes.Int, "Delay" );
 			face.Add( category2 );
 
 			var category3 = new ModuleFaceCategory("TimeLimit" );
-			category3.Add( ModuleFaceCategory.ModuleFaceTypes.String, "StartTime" );
-			category3.Add( ModuleFaceCategory.ModuleFaceTypes.String, "EndTime" );
+			category3.Add( ModuleFaceTypes.String, "StartTime" );
+			category3.Add( ModuleFaceTypes.String, "EndTime" );
 			face.Add( category3 );
 
 			return face;

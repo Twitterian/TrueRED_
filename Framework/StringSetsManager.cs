@@ -6,16 +6,16 @@ using System.Text;
 
 namespace TrueRED.Framework
 {
-	public class StringSetsManager
+	public static class StringSetsManager
 	{
-		static Dictionary<string, List<string>> _list = new Dictionary<string, List<string>>();
-		static Random _selector = new Random();
-		public static string rootpath = rootpath;
+		private static Dictionary<string, IList<string>> _list = new Dictionary<string, IList<string>>();
+		private static Random _selector = new Random();
+		public static string RootPath { get; private set; }
 
 		public static void LoadStringSets( string rootpath )
 		{
 			if ( !Directory.Exists( rootpath ) ) return;
-			StringSetsManager.rootpath = rootpath;
+			StringSetsManager.RootPath = rootpath;
 			var subdirs = Directory.GetDirectories(rootpath );
 			var files = Directory.GetFiles(rootpath);
 			foreach ( var item in subdirs )
@@ -30,7 +30,7 @@ namespace TrueRED.Framework
 
 		public static void LoadStringSets( )
 		{
-			LoadStringSets( StringSetsManager.rootpath );
+			LoadStringSets( StringSetsManager.RootPath );
 		}
 
 		private static void LoadStringSet( string path )
@@ -40,7 +40,7 @@ namespace TrueRED.Framework
 			lines.RemoveAt( 0 );
 			_list.Add( name, lines );
 
-			Log.Debug( "LoadStringSet", string.Format( "from [ {0} ], {1} : {2} string loaded.", path, name, lines.Count ) );
+			Log.Debug( "LoadStringSet", "from [ {0} ], {1} : {2} string loaded.", path, name, lines.Count );
 		}
 
 		public static string GetRandomString( string StringSet )
@@ -51,7 +51,7 @@ namespace TrueRED.Framework
 			}
 			else
 			{
-				Log.Error( "GetRandomString", string.Format( "Coudn't find StringSet [{0}]", StringSet ) );
+				Log.Error( "GetRandomString", "Coudn't find StringSet [{0}]", StringSet );
 				return string.Empty;
 			}
 
@@ -65,7 +65,7 @@ namespace TrueRED.Framework
 			}
 			catch
 			{
-				Log.Error( "GetStrings", string.Format( "Coudn't find StringSet [{0}]", StringSet ) );
+				Log.Error( "GetStrings", "Coudn't find StringSet [{0}]", StringSet );
 				return new string[0];
 			}
 		}

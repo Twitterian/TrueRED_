@@ -166,7 +166,7 @@ namespace TrueRED.Modules
 						var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
 						if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
 						{
-							Log.Print( this.Name, "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset.ToString( ) );
+							Log.Print( this.Name, "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset );
 							state = TweetMatchResult.Expire;
 						}
 						else

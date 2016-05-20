@@ -61,11 +61,11 @@ namespace TrueRED.Modules
 					foreach ( var item in pair )
 					{
 						if ( DateTime.Now.Hour == item.Item1.Hour &&
-						DateTime.Now.Minute == item.Item1.Minute &&
-						DateTime.Now.Second == 0 )
+                             DateTime.Now.Minute == item.Item1.Minute &&
+                             DateTime.Now.Second == 0 )
 						{
 							var tweet= Globals.Instance.User.PublishTweet( item.Item2 );
-							Log.Print( this.Name, "Tweeted [{0} : {1}]", tweet.Text, tweet.CreatedAt.ToString( ) );
+							Log.Print( this.Name, "Tweeted [{0} : {1:yyyy-MM-dd HH:mm:ss}]", tweet.Text, tweet.CreatedAt );
 						}
 					}
 				}

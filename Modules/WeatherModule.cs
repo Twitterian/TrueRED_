@@ -111,7 +111,7 @@ namespace TrueRED.Modules
 							{
 								InReplyToTweetId = tweet.Id
 							}); 
-							Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
+							Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 						} );
 				}
 				// 문자열로 위치 찾기
@@ -121,7 +121,7 @@ namespace TrueRED.Modules
 					{
 						InReplyToTweetId = tweet.Id
 					});
-					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
+					Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 				}
 			}
 		}

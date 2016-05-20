@@ -8,13 +8,6 @@ using System.Threading.Tasks;
 
 namespace TrueRED.Framework.HttpCore
 {
-    public class HttpHeaders : Dictionary<HttpRequestHeader, string>
-    {
-    }
-    public class HttpParameters : Dictionary<string, object>
-    {
-    }
-
 	public static class HttpCommunicator
 	{
 		public static void Post( string url, HttpHeaders headers, HttpParameters parameters, Action<string> callback, Action<Exception, Action> errorCallback )
@@ -50,7 +43,7 @@ namespace TrueRED.Framework.HttpCore
                     {
                         req.ContentType = "application/x-www-form-urlencoded";
 
-                        var buff = Encoding.UTF8.GetBytes(InflateRawString(parameters));
+                        var buff = Encoding.UTF8.GetBytes(parameters.ToString());
                         req.GetRequestStream().Write(buff, 0, buff.Length);
                     }
 
@@ -113,56 +106,12 @@ namespace TrueRED.Framework.HttpCore
         private static Uri CombineQuery(Uri uri, HttpParameters collection)
         {
             var dic = new HttpParameters();
-            var str = uri.Query;
-            
-            if (!string.IsNullOrWhiteSpace(str) || (str.Length > 1))
-            {
-                int read = 0;
-                int find = 0;
-
-                if (str[0] == '?')
-                    read = 1;
-
-                string key, val;
-
-                while (read < str.Length)
-                {
-                    find = str.IndexOf('=', read);
-                    key = str.Substring(read, find - read);
-                    read = find + 1;
-
-                    find = str.IndexOf('&', read);
-                    if (find > 0)
-                    {
-                        val = (find - read == 1) ? null : str.Substring(read, find - read);
-                        read = find + 1;
-                    }
-                    else
-                    {
-                        val = str.Substring(read);
-                        read = str.Length;
-                    }
-
-                    dic[key] = val;
-                }
-            }
+            dic.Add(uri.Query);
 
             foreach (var st in collection)
                 dic[st.Key] = st.Value;
 
-            return new UriBuilder(uri) { Query = "?" + InflateRawString(dic) }.Uri;
+            return new UriBuilder(uri) { Query = "?" + dic.ToString() }.Uri;
         }
-		private static string InflateRawString( HttpParameters collection )
-		{
-			if ( collection == null || collection.Count == 0 ) return null;
-
-            StringBuilder raw = null;
-            foreach (var st in collection)
-                if (!string.IsNullOrWhiteSpace(st.Key))
-                    raw.AppendFormat("{0}={1}&", st.Key, Convert.ToString(st.Value));
-
-            raw.Remove(raw.Length - 1, 1);
-			return raw.ToString();
-		}
 	}
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using TrueRED.Display;
 using TrueRED.Framework;
-using Tweetinvi;
 
 namespace TrueRED.Modules
 {
@@ -49,7 +48,7 @@ namespace TrueRED.Modules
 				{
 					var index = _selector.Next(stringset.Length);
 					var result = Globals.Instance.User.PublishTweet( stringset[index] );
-					if ( result != null ) Log.Print( this.Name, string.Format( "Tweeted [{0}]", result.Text ) );
+					if ( result != null ) Log.Print( this.Name, "Tweeted [{0}]", result.Text );
 					else continue;
 				}
 				Thread.Sleep( duration - ( ( variation / 2 ) + ( _selector.Next( variation ) ) ) );
@@ -115,13 +114,13 @@ namespace TrueRED.Modules
 			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new ModuleFaceCategory("Module" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+			category1.Add( ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "문자셋" );
 			face.Add( category1 );
 
 			var category2 = new ModuleFaceCategory("Cycle" );
-			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Duration" );
-			category2.Add( ModuleFaceCategory.ModuleFaceTypes.Int, "Variation" );
+			category2.Add( ModuleFaceTypes.Int, "Duration" );
+			category2.Add( ModuleFaceTypes.Int, "Variation" );
 			face.Add( category2 );
 
 			return face;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -6,9 +7,10 @@ using MaterialSkin.Controls;
 
 namespace TrueRED.Display
 {
+    [System.ComponentModel.DesignerCategory("CODE")]
 	public partial class ModuleFace : TabPage
 	{
-		public List<Control> InputFields { get; private set; } = new List<Control>( );
+		public readonly List<Control> InputFields = new List<Control>( );
 
 		public ModuleFace( Type type, IEnumerable<ModuleFaceCategory> moduleFaceInfo, Action<Type, object[]> doneCallback )
 		{
@@ -39,7 +41,8 @@ namespace TrueRED.Display
 						@params[i] = ( int ) ( ( ( NumericUpDown ) item ).Value );
 					}
 				}
-				donebuttonClickLiestner( type, @params );
+                if (donebuttonClickLiestner != null)
+				    donebuttonClickLiestner.Invoke( type, @params );
 			};
 			button.Anchor = ( AnchorStyles.Bottom | AnchorStyles.Right );
 			this.Controls.Add( button );
@@ -66,6 +69,7 @@ namespace TrueRED.Display
 
 			int Current_Y_Position = 0;
 
+            if (moduleFaceInfo == null) return;
 			foreach ( var category in moduleFaceInfo )
 			{
 				// TODO: 탭 인댄트 정리
@@ -76,7 +80,7 @@ namespace TrueRED.Display
 				this.Controls.Add( title );
 				Current_Y_Position++;
 
-				foreach ( var item in category.CategoryItem )
+				foreach ( var item in category )
 				{
 					var itemname = new MaterialLabel();
 					itemname.Text = item.Item2;
@@ -85,10 +89,10 @@ namespace TrueRED.Display
 					Control iteminput = null;
 					switch ( item.Item1 )
 					{
-						case ModuleFaceCategory.ModuleFaceTypes.String:
+						case ModuleFaceTypes.String:
 							iteminput = new MaterialSingleLineTextField( );
 							break;
-						case ModuleFaceCategory.ModuleFaceTypes.Int:
+						case ModuleFaceTypes.Int:
 							iteminput = new NumericUpDown( );
 							( ( NumericUpDown ) iteminput ).Maximum = decimal.MaxValue;
 							( ( NumericUpDown ) iteminput ).Minimum = decimal.MinValue;
@@ -106,10 +110,12 @@ namespace TrueRED.Display
 
 	}
 
-	public class ModuleFaceCategory
+    public enum ModuleFaceTypes { String, Int }
+
+	public class ModuleFaceCategory : IEnumerable<Tuple<ModuleFaceTypes, string>>, IEnumerable
 	{
-		public string CategoryName { get; set; }
-		public List<Tuple<ModuleFaceTypes, string>> CategoryItem { get; set; } = new List<Tuple<ModuleFaceTypes, string>>( );
+		public readonly string CategoryName;
+		private readonly List<Tuple<ModuleFaceTypes, string>> CategoryItem = new List<Tuple<ModuleFaceTypes, string>>( );
 
 		public ModuleFaceCategory( string categoryName )
 		{
@@ -126,6 +132,13 @@ namespace TrueRED.Display
 			CategoryItem.Add( new Tuple<ModuleFaceTypes, string>( type, name ) );
 		}
 
-		public enum ModuleFaceTypes { String, Int }
+        IEnumerator<Tuple<ModuleFaceTypes, string>> IEnumerable<Tuple<ModuleFaceTypes, string>>.GetEnumerator()
+        {
+            return ((IEnumerable<Tuple<ModuleFaceTypes, string>>)this.CategoryItem).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)this.CategoryItem).GetEnumerator();
+        }
 	}
 }

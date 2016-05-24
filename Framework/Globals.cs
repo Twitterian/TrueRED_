@@ -7,26 +7,18 @@ namespace TrueRED.Framework
 	/// <summary>
 	/// 프로그램 전역에 걸친 인스턴스를 관리하는 클래스
 	/// </summary>
-	class Globals
+	public class Globals
 	{
 		#region 생성자
-		private static Globals _instance = null;
-		public static Globals Instance
-		{
-			get
-			{
-				if ( _instance == null )
-					_instance = new Globals( );
-				return _instance;
-			}
-		}
+		public readonly static Globals Instance = new Globals();
+
 		private Globals( )
 		{
 		}
 		private const string LogHeader = "Globals";
 		#endregion
 		
-		public List<Action> AppInitializedListener { get; private set; } = new List<Action>( );
+		public readonly List<Action> AppInitializedListener = new List<Action>( );
 
 		private Tweetinvi.Core.Interfaces.IAuthenticatedUser _user;
 		public Tweetinvi.Core.Interfaces.IAuthenticatedUser User
@@ -53,7 +45,7 @@ namespace TrueRED.Framework
 				item( );
 			}
 
-			Log.Http( LogHeader, string.Format( "다음 계정으로 트위터에 로그인했습니다 : {0}({1}) [{2}]", User.Name, User.ScreenName, User.Id ) );
+			Log.Http( LogHeader, "다음 계정으로 트위터에 로그인했습니다 : {0}({1}) [{2}]", User.Name, User.ScreenName, User.Id );
 			//Tweet.PublishTweet( string.Format( "다음 계정으로 트위터에 로그인했습니다 : {0}({1}) [{2}]", User.Name, User.ScreenName, User.Id ) );
 		}
 	}

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TrueRED.Display;
 using TrueRED.Framework;
-using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Parameters;
 
@@ -101,7 +99,7 @@ namespace TrueRED.Modules
 
 			if ( tweet.Text.Contains( "날씨" ) )
 			{
-				Log.Print( this.Name, string.Format( "Catch tweet [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Print( this.Name, "Catch tweet [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text );
 				// GPS로 위치 찾기
 				if ( tweet.Place != null )
 				{
@@ -113,7 +111,7 @@ namespace TrueRED.Modules
 							{
 								InReplyToTweetId = tweet.Id
 							}); 
-							Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
+							Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 						} );
 				}
 				// 문자열로 위치 찾기
@@ -123,7 +121,7 @@ namespace TrueRED.Modules
 					{
 						InReplyToTweetId = tweet.Id
 					});
-					Log.Print( this.Name, string.Format( "Send tweet [{0}]", result.Text ) );
+					Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 				}
 			}
 		}
@@ -176,7 +174,7 @@ namespace TrueRED.Modules
 			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new ModuleFaceCategory("Module" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "모듈 이름" );
 			face.Add( category1 );
 
 			return face;

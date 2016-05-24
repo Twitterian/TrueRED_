@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text;
 using TrueRED.Display;
 using TrueRED.Framework;
-using Tweetinvi;
 using Tweetinvi.Core.Events.EventArguments;
 using Tweetinvi.Core.Interfaces;
 using Tweetinvi.Core.Parameters;
@@ -106,7 +105,7 @@ namespace TrueRED.Modules
 
 			if ( tweet.Text.Contains( "Deactivate" ) )
 			{
-				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text );
 
 				if ( tweet.Text.Contains( "All" ) )
 				{
@@ -122,7 +121,7 @@ namespace TrueRED.Modules
 			}
 			else if ( tweet.Text.Contains( "Activate" ) )
 			{
-				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text );
 
 				if ( tweet.Text.Contains( "All" ) )
 				{
@@ -138,7 +137,7 @@ namespace TrueRED.Modules
 			}
 			else if ( tweet.Text.Contains( "GetModuleState" ) )
 			{
-				Log.Debug( this.Name, string.Format( "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text ) );
+				Log.Debug( this.Name, "Owner tweet detected [{0}({1}) : {2}]", tweet.CreatedBy.Name, tweet.CreatedBy.ScreenName, tweet.Text );
 
 				GetModuleState( tweet );
 			}
@@ -147,11 +146,11 @@ namespace TrueRED.Modules
 		// TODO: 모듈이 많으면 트윗 되지 않음. 나눠서 트윗하는 함수를 만들어야함
 		private void GetModuleState( ITweet tweet )
 		{
-			string result = string.Empty;
+			var result = new StringBuilder();
 			var modules = ModuleManager.Modules;
 			for ( int i = 0; i < modules.Count; i++ )
 			{
-				result += string.Format( "{0} : {1}\n", modules[i].Name, modules[i].IsRunning.ToString( ) );
+				result.AppendFormat("{0} : {1}\n", modules[i].Name, modules[i].IsRunning);
 			}
 
 			var tweetResult = Globals.Instance.User.PublishTweet( string.Format( "@{0} {1}", tweet.CreatedBy.ScreenName, result ), new PublishTweetOptionalParameters()
@@ -198,7 +197,7 @@ namespace TrueRED.Modules
 			{
 				InReplyToTweetId = tweet.Id
 			});
-			Log.Debug( this.Name, module.Name + " 모듈이 활성화되었습니다." );
+			Log.Debug( this.Name, "{0} 모듈이 활성화되었습니다.", module.Name );
 		}
 
 		private void StopNyang( ITweet tweet, Module module )
@@ -209,7 +208,7 @@ namespace TrueRED.Modules
 			{
 				InReplyToTweetId = tweet.Id
 			});
-			Log.Debug( this.Name, module.Name + " 모듈이 비활성화되었습니다." );
+			Log.Debug( this.Name, "{0} 모듈이 비활성화되었습니다.", module.Name);
 		}
 
 		void IStreamListener.TweetFavouritedByAnyone( object sender, TweetFavouritedEventArgs args )
@@ -267,7 +266,7 @@ namespace TrueRED.Modules
 			List<Display.ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new Display.ModuleFaceCategory("Module" );
-			category1.Add( Display.ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "모듈 이름" );
 			face.Add( category1 );
 
 			return face;

@@ -14,7 +14,7 @@ namespace TrueRED.Display
 	{
 		private readonly MaterialSkinManager materialSkinManager;
 		List<Type> types = null;
-		private string LogHeader { get; set; } = "MakeModule";
+		private const string LogHeader = "MakeModule";
 
 		public MakeModule( )
 		{

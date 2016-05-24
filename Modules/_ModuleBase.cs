@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using TrueRED.Framework;
 using Tweetinvi.Core.Events.EventArguments;
-using Tweetinvi.Core.Interfaces;
 
 namespace TrueRED.Modules
 {
@@ -59,7 +58,7 @@ namespace TrueRED.Modules
 	/// <summary>
 	/// 모든 모듈의 상위 클래스가 되어야 합니다.
 	/// </summary>
-	public abstract class Module
+	public abstract class Module : IDisposable
 	{
 		public string Name { get; protected set; } // 모듈의 식별용 이름입니다.
 		private bool _IsRunning;
@@ -73,7 +72,8 @@ namespace TrueRED.Modules
 				{
 					foreach ( var item in ModuleStateChangeListener )
 					{
-						item( _IsRunning );
+                        if (item != null)
+						    item.Invoke( _IsRunning );
 					}
 				}
 			}
@@ -162,6 +162,8 @@ namespace TrueRED.Modules
 		{
 			Disposed = true;
 			Release( );
+
+            GC.SuppressFinalize(this);
 		}
 
 		#region Metadatas

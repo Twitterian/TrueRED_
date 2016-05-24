@@ -17,20 +17,21 @@ namespace TrueRED.Framework
 			if ( File.Exists( iniPath ) )
 			{
 				data = new FileIniDataParser( ).ReadFile( iniPath );
-				string @out = string.Format("Read INI - [{0}]", iniPath);
+				StringBuilder @out = new StringBuilder();
+                @out.AppendFormat("Read INI - [{0}]", iniPath);
 				foreach ( var section in data.Sections )
 				{
-					@out += string.Format( "\n    [{0}]", section.SectionName );
+					@out.AppendFormat("\n    [{0}]", section.SectionName );
 					foreach ( var key in section.Keys )
 					{
-						@out += string.Format( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName] );
+						@out.AppendFormat( "\n        {0} = {1}", key.KeyName, data[section.SectionName][key.KeyName] );
 					}
 				}
-				Log.Debug( LogHeader, @out );
+				Log.Debug( LogHeader, @out.ToString() );
 			}
 			else
 			{
-				Log.Debug( LogHeader, string.Format( "[{0}] is not correct directory. new INI file generated.", iniPath ) );
+				Log.Debug( LogHeader, "[{0}] is not correct directory. new INI file generated.", iniPath );
 				data = new IniData( );
 			}
 		}
@@ -89,7 +90,7 @@ namespace TrueRED.Framework
 
 		internal void Save( )
 		{
-			Log.Debug( LogHeader, string.Format( "Write INI - [{0}]", iniPath ) );
+			Log.Debug( LogHeader, "Write INI - [{0}]", iniPath );
 			new FileIniDataParser( ).WriteFile( iniPath, data, Encoding.UTF8 );
 		}
 

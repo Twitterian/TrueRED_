@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using TrueRED.Display;
 using TrueRED.Framework;
-using Tweetinvi;
 
 namespace TrueRED.Modules
 {
@@ -46,7 +45,7 @@ namespace TrueRED.Modules
 				var tags = scheduler[i].Split('∥');
 				if ( tags.Length != 3 )
 				{
-					Log.Error( this.Name, string.Format( "Not correct scheduler stringset {0}", scheduler[i] ) );
+					Log.Error( this.Name, "Not correct scheduler stringset {0}", scheduler[i] );
 					continue;
 				}
 				pair.Add( new Tuple<TimeSet, string>( new TimeSet( int.Parse( tags[0] ), int.Parse( tags[1] ) ), tags[2] ) );
@@ -62,11 +61,11 @@ namespace TrueRED.Modules
 					foreach ( var item in pair )
 					{
 						if ( DateTime.Now.Hour == item.Item1.Hour &&
-						DateTime.Now.Minute == item.Item1.Minute &&
-						DateTime.Now.Second == 0 )
+                             DateTime.Now.Minute == item.Item1.Minute &&
+                             DateTime.Now.Second == 0 )
 						{
 							var tweet= Globals.Instance.User.PublishTweet( item.Item2 );
-							Log.Print( this.Name, string.Format( "Tweeted [{0} : {1}]", tweet.Text, tweet.CreatedAt.ToString( ) ) );
+							Log.Print( this.Name, "Tweeted [{0} : {1:yyyy-MM-dd HH:mm:ss}]", tweet.Text, tweet.CreatedAt );
 						}
 					}
 				}
@@ -107,8 +106,8 @@ namespace TrueRED.Modules
 			List<ModuleFaceCategory> face = new List<Display.ModuleFaceCategory>();
 
 			var category1 = new ModuleFaceCategory("Module" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "모듈 이름" );
-			category1.Add( ModuleFaceCategory.ModuleFaceTypes.String, "문자셋" );
+            category1.Add( ModuleFaceTypes.String, "모듈 이름" );
+			category1.Add( ModuleFaceTypes.String, "문자셋" );
 			face.Add( category1 );
 
 			return face;

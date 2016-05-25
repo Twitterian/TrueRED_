@@ -129,15 +129,38 @@ namespace TrueRED.Modules
 
 		enum TweetMatchResult { Match, NotMatch, Expire }
 
+		private bool IsCategoryMatch( string category, ITweet status )
+		{
+			switch ( category )
+			{
+				case "All":
+					return true;
+				case "Mention":
+					if ( status.InReplyToUserId == Globals.Instance.User.Id )
+					{
+						return true;
+					}
+					break;
+				case "Public":
+					if ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) )
+					{
+						return true;
+					}
+					break;
+			}
+			return false;
+		}
+
 		private TweetMatchResult IsMatch( string category, string input, ITweet status )
 		{
-
 			TweetMatchResult state = TweetMatchResult.NotMatch;
 
 			var originText = status.Text.Replace( " ", "" ).Replace( "\n", "");
 			var compareText = input.Replace( " ", "" ).Replace( "\n", "" );
 
-			if ( ParseEscapeInput(originText, compareText))
+
+			// TODO: Use IsCategoryMatch()
+			if ( ParseEscapeInput( originText, compareText ) )
 			{
 				switch ( category )
 				{
@@ -160,24 +183,27 @@ namespace TrueRED.Modules
 						}
 						break;
 					default:
-						
+
 						break;
 				}
 
 
-				lock ( ExpireUsers )
+				if ( ExpireTime != 0 )
 				{
-					if ( ExpireUsers.ContainsKey( status.CreatedBy.Id ) )
+					lock ( ExpireUsers )
 					{
-						var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
-						if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
+						if ( ExpireUsers.ContainsKey( status.CreatedBy.Id ) )
 						{
-							Log.Print( this.Name, "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset );
-							state = TweetMatchResult.Expire;
-						}
-						else
-						{
-							ExpireUsers.Remove( status.CreatedBy.Id );
+							var ExpireTimeset = ExpireUsers[status.CreatedBy.Id];
+							if ( TimeSet.Verification( new TimeSet( DateTime.Now ), ExpireTimeset, new TimeSet( ExpireTimeset.Hour, ExpireTimeset.Minute + ExpireTime ) ) )
+							{
+								Log.Print( this.Name, "User {0} rejected by expire : to {1}", status.CreatedBy.ScreenName, ExpireTimeset );
+								state = TweetMatchResult.Expire;
+							}
+							else
+							{
+								ExpireUsers.Remove( status.CreatedBy.Id );
+							}
 						}
 					}
 				}
@@ -187,9 +213,9 @@ namespace TrueRED.Modules
 
 		private bool ParseEscapeInput( string originText, string compareText )
 		{
-			if(compareText == ":True:")
+			if ( compareText == ":True:" )
 			{
-					return true;
+				return true;
 			}
 			return originText.Contains( compareText );
 		}
@@ -197,7 +223,7 @@ namespace TrueRED.Modules
 		public bool Verification( )
 		{
 			if ( moduleWakeup == null && moduleSleep == null ) return true;
-			if ( moduleWakeup.Hour == -1 && moduleSleep.Hour == -1 ) return true;
+			if ( moduleWakeup.Hour == int.MaxValue && moduleSleep.Hour == int.MaxValue ) return true;
 			return TimeSet.Verification( new TimeSet( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
 		}
 
@@ -215,6 +241,7 @@ namespace TrueRED.Modules
 				var category = reactor_category[i];
 				var input = reactor_input[i];
 
+				// TODO: StringSetManager에서 Stringset간 참조에 대한 처리를 해주어야 합니다.
 				if ( input.StartsWith( "__" ) && input.EndsWith( "__" ) )
 				{
 					var inputset = StringSetsManager.GetStrings(input.Substring(2, input.Length-4));
@@ -233,6 +260,35 @@ namespace TrueRED.Modules
 						}
 					}
 					if ( loopbreak ) break;
+				}
+				else if ( input.StartsWith( "-__" ) && input.EndsWith( "__" ) )
+				{
+					var inputset = StringSetsManager.GetStrings(input.Substring(3, input.Length-5));
+					for ( int j = 0; j < inputset.Length; j++ )
+					{
+						if ( inputset[j].StartsWith( "__" ) && inputset[j].EndsWith( "__" ) )
+						{
+							var inputset_inner = StringSetsManager.GetStrings(inputset[j].Substring(2, inputset[j].Length-4));
+							for ( int k = 0; k < inputset_inner.Length; k++ )
+							{
+								var matchResult = IsMatch( category, inputset_inner[k], tweet );
+								if ( matchResult == TweetMatchResult.Match )
+								{
+									break;
+								}
+							}
+						}
+						else
+						{
+							var matchResult = IsMatch( category, inputset[j], tweet );
+							if ( matchResult == TweetMatchResult.Match )
+							{
+								break;
+							}
+						}
+					}
+					if ( IsCategoryMatch( category, tweet ) )
+						cases.Add( i );
 				}
 				else
 				{
@@ -262,7 +318,7 @@ namespace TrueRED.Modules
 					Log.Print( this.Name, "Send tweet [{0}]", result.Text );
 
 					if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );
-					ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
+					else ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
 				}
 			}
 		}

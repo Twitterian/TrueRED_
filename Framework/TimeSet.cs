@@ -104,8 +104,8 @@ namespace TrueRED.Framework
 
 		public static TimeSet FromString( string timeStr )
 		{
-			var hour   = int.Parse(Regex.Match(timeStr, "(_*[0-9])+시").Groups[1].Value.Replace("_", "-"));
-			var minute = int.Parse(Regex.Match(timeStr, "(_*[0-9])+분").Groups[1].Value.Replace("_", "-"));
+			var hour   = int.Parse(Regex.Match(timeStr, "([0-9]+)시").Groups[1].Value);
+			var minute = int.Parse(Regex.Match(timeStr, "([0-9]+)분").Groups[1].Value);
 
 			return new TimeSet( hour, minute );
 		}

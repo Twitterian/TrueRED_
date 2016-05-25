@@ -134,7 +134,10 @@ namespace TrueRED.Modules
 
 			TweetMatchResult state = TweetMatchResult.NotMatch;
 
-			if ( status.Text.Replace( " ", "" ).Replace( "\n", "" ).Contains( input.Replace( " ", "" ).Replace( "\n", "" ) ) )
+			var originText = status.Text.Replace( " ", "" ).Replace( "\n", "");
+			var compareText = input.Replace( " ", "" ).Replace( "\n", "" );
+
+			if ( ParseEscapeInput(originText, compareText))
 			{
 				switch ( category )
 				{
@@ -155,6 +158,9 @@ namespace TrueRED.Modules
 							Log.Print( this.Name, "catch tweet (Public) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
 							state = TweetMatchResult.Match;
 						}
+						break;
+					default:
+						
 						break;
 				}
 
@@ -177,6 +183,15 @@ namespace TrueRED.Modules
 				}
 			}
 			return state;
+		}
+
+		private bool ParseEscapeInput( string originText, string compareText )
+		{
+			if(compareText == ":True:")
+			{
+					return true;
+			}
+			return originText.Contains( compareText );
 		}
 
 		public bool Verification( )

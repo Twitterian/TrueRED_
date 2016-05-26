@@ -119,7 +119,7 @@ namespace TrueRED.Display
 		private void button_stringset_reload_click( object sender, EventArgs e )
 		{
 			StringSetsManager.ClearStringSets( );
-			StringSetsManager.LoadStringSets( );
+			StringSetsManager.LoadStringsets( );
 		}
 
 		private void button_changetwitterID_Click( object sender, EventArgs e )

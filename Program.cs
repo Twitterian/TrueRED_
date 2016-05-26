@@ -39,7 +39,7 @@ namespace TrueRED
 
 			Log.Init( );
 			InitDirectories( );
-			StringSetsManager.LoadStringSets( "Stringsets" );
+			StringSetsManager.LoadStringsets( "Stringsets" );
 
 			var setting = new INIParser( "Globals.ini" );
 			var AuthData = "Authenticate";

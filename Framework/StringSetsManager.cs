@@ -96,13 +96,6 @@ namespace TrueRED.Framework
 				strings.Add( item );
 			}
 
-			foreach ( var item in strings )
-			{
-				Console.WriteLine( item );
-			}
-			Console.WriteLine( "" );
-
-
 			return strings;
 		}
 

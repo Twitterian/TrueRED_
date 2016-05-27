@@ -26,6 +26,7 @@ namespace TrueRED.Modules
 
 		List<Tuple<TimeSet, string>> pair = new List<Tuple<TimeSet, string>>();
 		private string stringset;
+		private Random _selector = new Random();
 
 		public SchedulerModule( ) : base( string.Empty )
 		{
@@ -61,15 +62,21 @@ namespace TrueRED.Modules
 					foreach ( var item in pair )
 					{
 						if ( DateTime.Now.Hour == item.Item1.Hour &&
-                             DateTime.Now.Minute == item.Item1.Minute &&
-                             DateTime.Now.Second == 0 )
+							 DateTime.Now.Minute == item.Item1.Minute &&
+							 DateTime.Now.Second == 0 )
 						{
-							var tweet= Globals.Instance.User.PublishTweet( item.Item2 );
+							var output=item.Item2;
+							if ( item.Item2.StartsWith( "__" ) && item.Item2.EndsWith( "__" ) )
+							{
+								var inputset = StringSetsManager.GetStrings(item.Item2 .Substring(2, item.Item2 .Length-4));
+								output = inputset[_selector.Next( inputset.Length )];
+							}
+							var tweet= Globals.Instance.User.PublishTweet( output );
 							Log.Print( this.Name, "Tweeted [{0} : {1:yyyy-MM-dd HH:mm:ss}]", tweet.Text, tweet.CreatedAt );
 						}
 					}
 				}
-				Thread.Sleep( 1000 );
+				Thread.Sleep( 500 );
 			}
 		}
 

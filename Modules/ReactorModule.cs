@@ -165,8 +165,12 @@ namespace TrueRED.Modules
 				switch ( category )
 				{
 					case "All":
-						Log.Print( this.Name, "catch tweet (all) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
-						state = TweetMatchResult.Match;
+						if ( ( status.InReplyToStatusId == null && status.InReplyToScreenName == null && !new Regex( "^\\s@\\s" ).IsMatch( status.Text ) ) ||
+						status.InReplyToUserId == Globals.Instance.User.Id )
+						{
+							Log.Print( this.Name, "catch tweet (all) [{0}({1}) : {2}]", status.CreatedBy.Name, status.CreatedBy.ScreenName, status.Text );
+							state = TweetMatchResult.Match;
+						}
 						break;
 					case "Mention":
 						if ( status.InReplyToUserId == Globals.Instance.User.Id )

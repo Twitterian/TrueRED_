@@ -65,14 +65,40 @@ namespace TrueRED.Modules
 							 DateTime.Now.Minute == item.Item1.Minute &&
 							 DateTime.Now.Second == 0 )
 						{
+							var inputset = new List<string>();
+							
 							var output=item.Item2;
+							inputset.Add( output );
+
 							if ( item.Item2.StartsWith( "__" ) && item.Item2.EndsWith( "__" ) )
 							{
-								var inputset = StringSetsManager.GetStrings(item.Item2 .Substring(2, item.Item2 .Length-4));
-								output = inputset[_selector.Next( inputset.Length )];
+								inputset = new List<string>(StringSetsManager.GetStrings(item.Item2 .Substring(2, item.Item2 .Length-4)));
 							}
-							var tweet= Globals.Instance.User.PublishTweet( output );
-							Log.Print( this.Name, "Tweeted [{0} : {1:yyyy-MM-dd HH:mm:ss}]", tweet.Text, tweet.CreatedAt );
+
+							while ( true )
+							{
+								output = inputset[_selector.Next( inputset.Count )];
+								var result = Globals.Instance.User.PublishTweet( output );
+								if ( result != null )
+								{
+									Log.Print( this.Name, "Tweeted [{0} : {1:yyyy-MM-dd HH:mm:ss}]", result.Text, result.CreatedAt );
+									break;
+								}
+								else
+								{
+									Log.Print( this.Name, "트윗하지 못했습니다 - [{0}]", output );
+									inputset.Remove( output );
+									if ( inputset.Count > 0 )
+									{
+										Log.Print( this.Name, "재시도. 남은 case 수 : {0}", inputset.Count );
+									}
+									else
+									{
+										Log.Print( this.Name, "모든 트윗이 중복으로 처리되어 시보를 트윗하지 못했습니다." );
+										break;
+									}
+								}
+							}
 						}
 					}
 				}

@@ -39,7 +39,6 @@ namespace TrueRED
 
 			Log.Init( );
 			InitDirectories( );
-			StringSetsManager.LoadStringsets( "Stringsets" );
 
 			var setting = new INIParser( "Globals.ini" );
 			var AuthData = "Authenticate";
@@ -74,6 +73,9 @@ namespace TrueRED
 			}
 			#endregion
 
+			Log.DMLogFlag = true;
+			Globals.Instance.OwnerID = long.Parse(setting.GetValue( "AppInfo", "OwnerID" ));
+			StringSetsManager.LoadStringsets( "Stringsets" );
 			ModuleManager.Initialize( );
 			ModuleManager.LoadAllModules( "Modules" );
 

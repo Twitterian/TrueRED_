@@ -77,7 +77,8 @@ namespace TrueRED.Modules
 
 							while ( true )
 							{
-								output = inputset[_selector.Next( inputset.Count )];
+								if ( inputset.Count == 0 ) break;	
+							output = inputset[_selector.Next( inputset.Count )];
 								var result = Globals.Instance.User.PublishTweet( output );
 								if ( result != null )
 								{

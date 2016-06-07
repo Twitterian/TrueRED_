@@ -47,6 +47,7 @@ namespace TrueRED.Modules
 				if ( IsRunning )
 				{
 					var index = _selector.Next(stringset.Length);
+					if ( index >= stringset.Length ) return;
 					var result = Globals.Instance.User.PublishTweet( stringset[index] );
 					if ( result != null ) Log.Print( this.Name, "Tweeted [{0}]", result.Text );
 					else continue;

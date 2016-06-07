@@ -33,6 +33,7 @@ namespace TrueRED.Framework
 				return _user;
 			}
 		}
+		public long OwnerID { get; set; }
 
 		internal void Initialize( string consumerKey, string consumerSecret, string accessToken, string accessSecret )
 		{

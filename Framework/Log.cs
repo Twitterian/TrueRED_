@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Tweetinvi.Core.Parameters;
 
 namespace TrueRED.Framework
 {
 	public static class Log
 	{
 		private static bool IsInited;
+
+		public static bool DMLogFlag { get; set; }
 
 		public static void Init( )
 		{
@@ -64,6 +68,14 @@ namespace TrueRED.Framework
 			{
 				Console.WriteLine( log );
 			}
+			if ( DMLogFlag )
+			{
+				// TODO: 보면 뭐가 문젠지 알겁니다
+				Task.Factory.StartNew( delegate
+				{
+					Globals.Instance.User.PublishMessage( new PublishMessageParameters( log, Globals.Instance.OwnerID ) );
+				} );
+			}
 		}
 
 		public static void StackTrace( )
@@ -74,9 +86,9 @@ namespace TrueRED.Framework
 				Trace.Write( new StackTrace( true ) );
 			}
 			else
-            {
-                Console.WriteLine("Inflate stacktrace() :");
-                Console.WriteLine(new StackTrace(true));
+			{
+				Console.WriteLine( "Inflate stacktrace() :" );
+				Console.WriteLine( new StackTrace( true ) );
 			}
 		}
 

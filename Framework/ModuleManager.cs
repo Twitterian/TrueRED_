@@ -209,6 +209,12 @@ namespace TrueRED.Framework
 			StreamPaused = false;
 			MainStream.StreamStopped += UserStream_StreamStopped;
 		}
+
+		public static Module Get(string ModuleName)
+		{
+			var module = Modules.Find( item => item.Name == ModuleName );
+			return module;
+		}
 	}
 
 	public class ModuleList<T> : List<T>

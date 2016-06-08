@@ -37,9 +37,11 @@ namespace TrueRED.Display
 			{
 				//TODO: Maybe heavycost
 				var factory = ( Module ) Activator.CreateInstance( types[i] );
+				var face = factory.GetModuleFace( );
+				if ( face == null ) continue;
 				modules[i] = new Tuple<Type, TabPage>( types[i], new ModuleFace(
-					types[i],
-					factory.GetModuleFace( ),
+					types[i], 
+					face,
 					delegate ( Type t, object[] @params )
 					{
 						var instance = factory.CreateModule(@params);

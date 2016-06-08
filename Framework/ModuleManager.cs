@@ -47,9 +47,9 @@ namespace TrueRED.Framework
 			var module = Module.Create( parser );
 			if ( module == null )
 			{
-				Log.Error( LogHeader, "모듈 이름 [{0}]를 로드할 수 없었습니다", module.Name );
+				Log.Error( LogHeader, "모듈 경로 [{0}]를 로드할 수 없었습니다", path);
 			}
-			if ( Modules.Find( item => item.Name == module.Name ) != null )
+			else if ( Modules.Find( item => item.Name == module.Name ) != null )
 			{
 				Log.Error( LogHeader, "모듈 이름 [{0}]가 이미 존재합니다. 뒤따른 모듈은 로드되지 않습니다.", module.Name );
 			}

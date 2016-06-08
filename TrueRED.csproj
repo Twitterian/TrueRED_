@@ -120,6 +120,7 @@
     <Compile Include="Framework\INIParser.cs" />
     <Compile Include="Framework\Log.cs" />
     <Compile Include="Framework\ModuleInvoker.cs" />
+    <Compile Include="Framework\ModuleLibrary.cs" />
     <Compile Include="Framework\ModuleManager.cs" />
     <Compile Include="Framework\Singleton.cs" />
     <Compile Include="Framework\StringSetsManager.cs" />

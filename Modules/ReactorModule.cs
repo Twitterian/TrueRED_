@@ -43,6 +43,9 @@ namespace TrueRED.Modules
 		int ExpireTime;
 		int ExpireDelay;
 
+		public static bool @Debug_TimeSkipFlag { get; set; } = false;
+		public static bool @Debug_ExpireSkipFlag { get; set; } = false;
+
 		public ReactorModule( ) : base( string.Empty )
 		{
 
@@ -192,7 +195,7 @@ namespace TrueRED.Modules
 				}
 
 
-				if ( ExpireTime != 0 )
+				if ( ExpireTime != 0 && !Debug_ExpireSkipFlag )
 				{
 					lock ( ExpireUsers )
 					{
@@ -226,6 +229,7 @@ namespace TrueRED.Modules
 
 		public bool Verification( )
 		{
+			if ( Debug_TimeSkipFlag ) return true;
 			if ( moduleWakeup == null && moduleSleep == null ) return true;
 			if ( moduleWakeup.Hour == int.MaxValue && moduleSleep.Hour == int.MaxValue ) return true;
 			return TimeSet.Verification( new TimeSet( DateTime.Now ), this.moduleWakeup, this.moduleSleep );
@@ -315,14 +319,31 @@ namespace TrueRED.Modules
 				var pString = ParseEscapeString(@out, tweet);
 				if ( pString.Flag )
 				{
-					var result = Globals.Instance.User.PublishTweet( pString.String, new PublishTweetOptionalParameters()
+					const int MaxDelay = 50;
+					System.Threading.Tasks.Task.Factory.StartNew( delegate
 					{
-						InReplyToTweetId = pString.Id
-					});
-					Log.Print( this.Name, "Send tweet [{0}]", result.Text );
+						Thread.Sleep( _selector.Next( MaxDelay ) ); // 나름의 랜덤 출력을 위한 결과물
+						var rjdcode = string.Format("rjd-{0}", tweet.Id);
+						var @var =  ModuleLibrary.GetValue( rjdcode );
+						if ( @var == null || !( bool ) @var )
+						{
+							ModuleLibrary.SetValue( rjdcode, true );
+							System.Threading.Tasks.Task.Factory.StartNew( delegate
+							 {
+								 Thread.Sleep( MaxDelay * 10 );
+								 ModuleLibrary.RemoveValue( rjdcode );
+							 } );
 
-					if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );
-					else ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
+							var result = Globals.Instance.User.PublishTweet( pString.String, new PublishTweetOptionalParameters()
+							{
+								InReplyToTweetId = pString.Id
+							});
+							Log.Print( this.Name, "Send tweet [{0}]", result.Text );
+
+							if ( ExpireUsers.ContainsKey( tweet.CreatedBy.Id ) ) ExpireUsers[tweet.CreatedBy.Id] = new TimeSet( DateTime.Now );
+							else ExpireUsers.Add( tweet.CreatedBy.Id, new TimeSet( DateTime.Now ) );
+						}
+					} );
 				}
 			}
 		}

@@ -33,6 +33,13 @@ namespace TrueRED
 #endif
 		}
 
+		static void SetDebugParams( )
+		{
+			Log.DMLogFlag = false;
+			Modules.ReactorModule.@Debug_TimeSkipFlag = true;
+			Modules.ReactorModule.@Debug_ExpireSkipFlag = true;
+		}
+
 		static void Body( )
 		{
 			#region Initialize Program
@@ -55,9 +62,9 @@ namespace TrueRED
 				Log.Error( LogHeader, "유저 인증 정보를 찾을 수 없습니다. 토큰 발급 창으로 이동합니다." );
 				var frm = new Display.Authenticate();
 				frm.ShowDialog( );
-				if(frm.Result == true)
+				if ( frm.Result == true )
 				{
-					
+
 				}
 				else
 				{
@@ -73,8 +80,9 @@ namespace TrueRED
 			}
 			#endregion
 
-			Log.DMLogFlag = true;
-			Globals.Instance.OwnerID = long.Parse(setting.GetValue( "AppInfo", "OwnerID" ));
+			SetDebugParams( );
+
+			Globals.Instance.OwnerID = long.Parse( setting.GetValue( "AppInfo", "OwnerID" ) );
 			StringSetsManager.LoadStringsets( "Stringsets" );
 			ModuleManager.Initialize( );
 			ModuleManager.LoadAllModules( "Modules" );
@@ -88,7 +96,7 @@ namespace TrueRED
 				parser.Save( );
 			}
 			Exit( );
-        }
+		}
 
 		static void InitDirectories( )
 		{
@@ -108,7 +116,7 @@ namespace TrueRED
 		static void Exit( )
 		{
 			Console.WriteLine( "" );
-			Log.Print(LogHeader, "종료하시려면 아무 키나 누르세요." );
+			Log.Print( LogHeader, "종료하시려면 아무 키나 누르세요." );
 			Console.Read( );
 		}
 
